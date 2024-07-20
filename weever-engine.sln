@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess", "Chess\Chess.csproj", "{8CAA84A7-FE2D-49F3-AD92-5867B9004247}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LichessBot", "LichessBot\LichessBot.csproj", "{DB90DC1F-AFA5-4582-8A1E-605CF59F3184}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine", "Engine\Engine.csproj", "{20D4C4DD-A50B-451F-ABD5-72315AB90D4B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{A8550A80-DE82-4ABD-A677-CCB926EC7AF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess.Test", "Chess.Test\Chess.Test.csproj", "{C81BE7AD-7E80-4CA3-A01C-7AE89F2CB5BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine.Test", "Engine.Test\Engine.Test.csproj", "{B078AE6E-99D5-4522-A914-87B798666C10}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LichessBot.Test", "LichessBot.Test\LichessBot.Test.csproj", "{5A667136-99FA-4C26-A6DA-665E1CFC3FC4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8CAA84A7-FE2D-49F3-AD92-5867B9004247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CAA84A7-FE2D-49F3-AD92-5867B9004247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CAA84A7-FE2D-49F3-AD92-5867B9004247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CAA84A7-FE2D-49F3-AD92-5867B9004247}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB90DC1F-AFA5-4582-8A1E-605CF59F3184}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB90DC1F-AFA5-4582-8A1E-605CF59F3184}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB90DC1F-AFA5-4582-8A1E-605CF59F3184}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB90DC1F-AFA5-4582-8A1E-605CF59F3184}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20D4C4DD-A50B-451F-ABD5-72315AB90D4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20D4C4DD-A50B-451F-ABD5-72315AB90D4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20D4C4DD-A50B-451F-ABD5-72315AB90D4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20D4C4DD-A50B-451F-ABD5-72315AB90D4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C81BE7AD-7E80-4CA3-A01C-7AE89F2CB5BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C81BE7AD-7E80-4CA3-A01C-7AE89F2CB5BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C81BE7AD-7E80-4CA3-A01C-7AE89F2CB5BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C81BE7AD-7E80-4CA3-A01C-7AE89F2CB5BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B078AE6E-99D5-4522-A914-87B798666C10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B078AE6E-99D5-4522-A914-87B798666C10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B078AE6E-99D5-4522-A914-87B798666C10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B078AE6E-99D5-4522-A914-87B798666C10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A667136-99FA-4C26-A6DA-665E1CFC3FC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A667136-99FA-4C26-A6DA-665E1CFC3FC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A667136-99FA-4C26-A6DA-665E1CFC3FC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A667136-99FA-4C26-A6DA-665E1CFC3FC4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C81BE7AD-7E80-4CA3-A01C-7AE89F2CB5BB} = {A8550A80-DE82-4ABD-A677-CCB926EC7AF8}
+		{B078AE6E-99D5-4522-A914-87B798666C10} = {A8550A80-DE82-4ABD-A677-CCB926EC7AF8}
+		{5A667136-99FA-4C26-A6DA-665E1CFC3FC4} = {A8550A80-DE82-4ABD-A677-CCB926EC7AF8}
+	EndGlobalSection
+EndGlobal
