@@ -34,6 +34,14 @@ public partial class Board
         Up, Left, Right, Down, Up + Left, Up + Right, Down + Left, Down + Right
     ];
 
+    private static PieceType[] PromotionPieceTypes =
+    [
+        PieceType.Bishop,
+        PieceType.Knight,
+        PieceType.Rook,
+        PieceType.Queen
+    ];
+
     public IEnumerable<Move> GetLegalMoves()
     {
         var moves = new List<Move>();
@@ -52,42 +60,96 @@ public partial class Board
 
     private IEnumerable<Move> GetLegalPieceMoves(Piece piece, Square square)
     {
-        var moves = new List<Move>();
         var directions = GetMoveVectorsForPiece(piece);
 
         var currentPosition = square;
 
         foreach (var direction in directions)
         {
-            currentPosition += direction;
-            while (currentPosition.IsWithinBoard())
+            while ((currentPosition += direction).IsWithinBoard())
             {
                 var pieceAtCurrentPosition = this[currentPosition];
                 if (pieceAtCurrentPosition?.Color == piece.Color)
                     break;
 
-                moves.Add(new Move(square, currentPosition));
+                if (piece.Type is PieceType.Pawn)
+                {
+                    var attemptsCapture = pieceAtCurrentPosition is not null;
+
+                    // Diagonal move without capture
+                    if (Math.Abs(direction.Y) == 1 &&
+                        !currentPosition.Equals(_enPassantAttackSquare) &&
+                        !attemptsCapture)
+                        break;
+
+                    // Two-square moves from non-starting position
+                    if (direction.X == 2 && square.X != 1)
+                        break;
+
+                    if (direction.X == -2 && square.X != 6)
+                        break;
+
+                    // Capturing forward
+                    if (direction.Size() == 1 && attemptsCapture)
+                        break;
+
+                    // Promotion
+                    if (currentPosition.Y % 7 == 0)
+                    {
+                        foreach (var pieceType in PromotionPieceTypes)
+                        {
+                            var promoteTo = new Piece(pieceType, piece.Color);
+                            yield return new Move(square, currentPosition, promoteTo);
+                        }
+
+                        break;
+                    }
+                }
+
+                // TODO: Add king handling
+
+                yield return new Move(square, currentPosition);
 
                 if (!PieceType.SlidingPieces.HasFlag(piece.Type) || pieceAtCurrentPosition is not null)
                     break;
 
-                currentPosition += direction;
+                // Add castling when rook slides next to the king
+                if (piece.Type is PieceType.Rook && currentPosition.Y % 7 == 0)
+                {
+                    if (currentPosition.Equals(Squares.D1) &&
+                        piece.Color is Color.White &&
+                        _whiteCastlingPrivileges.QueenSideCastling)
+                        yield return new Move(Squares.E1, Squares.C1);
+
+                    if (currentPosition.Equals(Squares.F1) &&
+                        piece.Color is Color.White &&
+                        _whiteCastlingPrivileges.KingSideCastling)
+                        yield return new Move(Squares.E1, Squares.G1);
+
+                    if (currentPosition.Equals(Squares.D8) &&
+                        piece.Color is Color.White &&
+                        _whiteCastlingPrivileges.QueenSideCastling)
+                        yield return new Move(Squares.E8, Squares.C8);
+
+                    if (currentPosition.Equals(Squares.F8) &&
+                        piece.Color is Color.White &&
+                        _whiteCastlingPrivileges.KingSideCastling)
+                        yield return new Move(Squares.E8, Squares.G8);
+                }
             }
         }
-
-        return moves;
     }
 
     private IEnumerable<Vector> GetMoveVectorsForPiece(Piece piece)
     {
         return piece.Type switch
         {
-            PieceType.King => KingMoveDirections,
-            PieceType.Queen => QueenMoveDirections,
-            PieceType.Rook => RookMoveDirections,
+            PieceType.King   => KingMoveDirections,
+            PieceType.Queen  => QueenMoveDirections,
+            PieceType.Rook   => RookMoveDirections,
             PieceType.Bishop => BishopMoveDirections,
             PieceType.Knight => KnightMoveDirections,
-            PieceType.Pawn => piece.Color is Color.White
+            PieceType.Pawn   => piece.Color is Color.White
                 ? WhitePawnMoveDirections
                 : BlackPawnMoveDirections,
             _ => throw new ArgumentOutOfRangeException($"Unknown piece type {piece.Type}"),
