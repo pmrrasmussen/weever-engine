@@ -22,4 +22,8 @@
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Chess\Chess.csproj" />
+    </ItemGroup>
+
 </Project>

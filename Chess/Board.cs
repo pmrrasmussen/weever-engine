@@ -6,12 +6,14 @@ namespace Chess;
 
 public partial class Board
 {
-    private static readonly Square NullSquare = new (-2, -2);
+    private static readonly Square NullSquare = new (int.MaxValue, int.MaxValue);
     private readonly Piece?[,] _pieces;
     private int _moveCount;
-    private Color _toMove;
+    private Color _colorToMove;
     private Square _enPassantPieceSquare;
     private Square _enPassantAttackSquare;
+    private (bool KingSideCastling, bool QueenSideCastling) _whiteCastlingPrivileges;
+    private (bool KingSideCastling, bool QueenSideCastling) _blackCastlingPrivileges;
 
     public Board()
     {
@@ -24,14 +26,19 @@ public partial class Board
 
         _enPassantPieceSquare = NullSquare;
         _enPassantPieceSquare = NullSquare;
+
+        _whiteCastlingPrivileges = (true, true);
+        _blackCastlingPrivileges = (true, true);
     }
 
     public void MakeMove(Move move)
     {
-        var movedPiece = this[move.From] ?? throw new InvalidMoveException($"There is no piece at {move.From}");
+        var movedPiece = this[move.From]
+            ?? throw new InvalidMoveException($"There is no piece at {move.From}");
 
         HandleEnPassant(move, movedPiece);
         HandleCastling(move, movedPiece);
+        SetCastlingPrivileges(move, movedPiece);
 
         var pieceToPlace = move.PromotionTo ?? movedPiece;
 
@@ -58,10 +65,9 @@ public partial class Board
         // New en passant square
         var verticalMoveDelta = move.To.Y - move.From.Y;
         var enPassantMadePossible = Math.Abs(verticalMoveDelta) == 2;
-        _enPassantPieceSquare = enPassantMadePossible ? move.To : NullSquare;
-        _enPassantAttackSquare = enPassantMadePossible
-            ? new Square(x: move.From.X, y: move.From.Y + verticalMoveDelta / 2)
-            : NullSquare;
+        (_enPassantPieceSquare, _enPassantAttackSquare) = enPassantMadePossible
+            ? (move.To, new Square(x: move.From.X, y: move.From.Y + verticalMoveDelta / 2))
+            : (NullSquare, NullSquare);
     }
 
     private void HandleCastling(Move move, Piece movedPiece)
@@ -86,26 +92,42 @@ public partial class Board
         this[currentRookPosition] = null;
     }
 
-    private void SwitchTurns()
+    private void SetCastlingPrivileges(Move move, Piece movedPiece)
     {
-        if (_toMove == Color.Black)
-            _moveCount++;
+        if (movedPiece.Type is PieceType.King)
+        {
+            if (_colorToMove is Color.White)
+                _whiteCastlingPrivileges = (false, false);
+            else
+                _blackCastlingPrivileges = (false, false);
+        }
 
-        _toMove = _toMove == Color.White
-            ? Color.Black
-            : Color.White;
+        if (movedPiece.Type is not PieceType.Rook)
+            return;
+
+        if (_colorToMove is Color.White)
+        {
+            if (move.From.Equals(Squares.A1))
+                _whiteCastlingPrivileges.QueenSideCastling = false;
+            if (move.From.Equals(Squares.H1))
+                _whiteCastlingPrivileges.KingSideCastling = false;
+        }
+        else
+        {
+            if (move.From.Equals(Squares.A8))
+                _blackCastlingPrivileges.QueenSideCastling = false;
+            if (move.From.Equals(Squares.H8))
+                _blackCastlingPrivileges.KingSideCastling = false;
+        }
     }
 
-    private Square GetEnPassantAttackSquare()
+    private void SwitchTurns()
     {
-        if (_enPassantPieceSquare.Equals(NullSquare))
-            return NullSquare;
+        if (_colorToMove == Color.Black)
+            _moveCount++;
 
-        return _toMove switch
-        {
-            Color.White => new Square(_enPassantPieceSquare.X, _enPassantPieceSquare.Y + 1),
-            Color.Black => new Square(_enPassantPieceSquare.X, _enPassantPieceSquare.Y - 1),
-            _ => throw new ArgumentOutOfRangeException(),
-        };
+        _colorToMove = _colorToMove == Color.White
+            ? Color.Black
+            : Color.White;
     }
 }
