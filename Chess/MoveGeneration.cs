@@ -69,28 +69,32 @@ public partial class Board
             while ((currentPosition += direction).IsWithinBoard())
             {
                 var pieceAtCurrentPosition = this[currentPosition];
+
+                // Stop if we hit our own piece
                 if (pieceAtCurrentPosition?.Color == piece.Color)
                     break;
 
+                var moveIsCapture = pieceAtCurrentPosition is not null;
+
+                // TODO: Also check that the move does not cause the king to be in danger!!
+
                 if (piece.Type is PieceType.Pawn)
                 {
-                    var attemptsCapture = pieceAtCurrentPosition is not null;
-
                     // Diagonal move without capture
                     if (Math.Abs(direction.Y) == 1 &&
                         !currentPosition.Equals(_enPassantAttackSquare) &&
-                        !attemptsCapture)
+                        !moveIsCapture)
                         break;
 
                     // Two-square moves from non-starting position
-                    if (direction.X == 2 && square.X != 1)
+                    if (direction.X == 2 && (square.X != 1 || this[square+Up] is not null))
                         break;
 
-                    if (direction.X == -2 && square.X != 6)
+                    if (direction.X == -2 && (square.X != 6 || this[square+Down] is not null))
                         break;
 
                     // Capturing forward
-                    if (direction.Size() == 1 && attemptsCapture)
+                    if (direction.Size() == 1 && moveIsCapture)
                         break;
 
                     // Promotion
@@ -110,10 +114,11 @@ public partial class Board
 
                 yield return new Move(square, currentPosition);
 
-                if (!PieceType.SlidingPieces.HasFlag(piece.Type) || pieceAtCurrentPosition is not null)
+                // Stop if the piece doesn't slide or we performed a capture
+                if (!PieceType.SlidingPieces.HasFlag(piece.Type) || moveIsCapture)
                     break;
 
-                // Add castling when rook slides next to the king
+                // Add castling moves when a rook slides next to the king
                 if (piece.Type is PieceType.Rook && currentPosition.Y % 7 == 0)
                 {
                     if (currentPosition.Equals(Squares.D1) &&
