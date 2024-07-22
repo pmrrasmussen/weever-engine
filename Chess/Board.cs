@@ -102,23 +102,14 @@ public partial class Board
                 _blackCastlingPrivileges = (false, false);
         }
 
-        if (movedPiece.Type is not PieceType.Rook)
-            return;
-
-        if (_colorToMove is Color.White)
-        {
-            if (move.From.Equals(Squares.A1))
-                _whiteCastlingPrivileges.QueenSideCastling = false;
-            if (move.From.Equals(Squares.H1))
-                _whiteCastlingPrivileges.KingSideCastling = false;
-        }
-        else
-        {
-            if (move.From.Equals(Squares.A8))
-                _blackCastlingPrivileges.QueenSideCastling = false;
-            if (move.From.Equals(Squares.H8))
-                _blackCastlingPrivileges.KingSideCastling = false;
-        }
+        if (move.From.Equals(Squares.A1) || move.To.Equals(Squares.A1))
+            _whiteCastlingPrivileges.QueenSideCastling = false;
+        if (move.From.Equals(Squares.H1) || move.To.Equals(Squares.H1))
+            _whiteCastlingPrivileges.KingSideCastling = false;
+        if (move.From.Equals(Squares.A8) || move.To.Equals(Squares.A8))
+            _blackCastlingPrivileges.QueenSideCastling = false;
+        if (move.From.Equals(Squares.H8) || move.To.Equals(Squares.H8))
+            _blackCastlingPrivileges.KingSideCastling = false;
     }
 
     private void SwitchTurns()
