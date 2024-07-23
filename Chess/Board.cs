@@ -47,7 +47,7 @@ public partial class Board
         SwitchTurns();
     }
 
-    private Piece? this[Square square]
+    public Piece? this[Square square]
     {
         get => _pieces[square.X, square.Y];
         set => _pieces[square.X, square.Y] = value;

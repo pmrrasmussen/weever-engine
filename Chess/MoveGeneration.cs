@@ -62,10 +62,11 @@ public partial class Board
     {
         var directions = GetMoveVectorsForPiece(piece);
 
-        var currentPosition = square;
 
         foreach (var direction in directions)
         {
+            var currentPosition = square;
+
             while ((currentPosition += direction).IsWithinBoard())
             {
                 var pieceAtCurrentPosition = this[currentPosition];
