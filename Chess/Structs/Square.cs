@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Chess.Structs;
 
 public readonly struct Square(int x, int y) : IEquatable<Square>
@@ -25,6 +27,26 @@ public readonly struct Square(int x, int y) : IEquatable<Square>
 
     public static bool operator !=(Square a, Square b)
         => !a.Equals(b);
+
+    public override string ToString()
+    {
+        var column = X switch
+        {
+            0 => "A",
+            1 => "B",
+            2 => "C",
+            3 => "D",
+            4 => "E",
+            5 => "F",
+            6 => "G",
+            7 => "H",
+            _ => throw new ArgumentOutOfRangeException(),
+        };
+
+        var row = (Y + 1).ToString();
+
+        return column + row;
+    }
 }
 
 public readonly struct Vector(int x, int y)

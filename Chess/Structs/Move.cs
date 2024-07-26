@@ -22,4 +22,9 @@ public readonly struct Move(
         var moveDelta = To - From;
         return moveDelta.Length();
     }
+
+    public override string ToString()
+    {
+        return $"{From}{To}";
+    }
 }

@@ -83,10 +83,10 @@ public partial class Board
                         break;
 
                     // Two-square moves from non-starting position
-                    if (direction.X == 2 && (square.X != 1 || this[square+Up] is not null))
+                    if (direction.Y == 2 && (square.X != 1 || this[square+Up] is not null))
                         break;
 
-                    if (direction.X == -2 && (square.X != 6 || this[square+Down] is not null))
+                    if (direction.Y == -2 && (square.X != 6 || this[square+Down] is not null))
                         break;
 
                     // Capturing forward

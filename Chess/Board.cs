@@ -1,4 +1,5 @@
-﻿using Chess.Enums;
+﻿using System.Text;
+using Chess.Enums;
 using Chess.Exceptions;
 using Chess.Structs;
 
@@ -34,5 +35,19 @@ public partial class Board
     {
         get => _pieces[square.X, square.Y];
         set => _pieces[square.X, square.Y] = value;
+    }
+
+    public override string ToString()
+    {
+        var stringRepresentation = new StringBuilder();
+        for (int y = 7; y >= 0; y--)
+        {
+            for (int x = 0; x < 8; x++)
+                stringRepresentation.Append(_pieces[x, y]?.ToString() ?? "\u00B7");
+
+            stringRepresentation.Append('\n');
+        }
+
+        return stringRepresentation.ToString();
     }
 }
