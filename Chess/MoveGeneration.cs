@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Chess.Enums;
 using Chess.Structs;
 
@@ -28,6 +29,7 @@ public partial class Board
     [
         Up, Left, Right, Down, Up + Left, Up + Right, Down + Left, Down + Right
     ];
+    private static readonly Vector[] AllMoveDirections = QueenMoveDirections.Concat(KnightMoveDirections).ToArray();
 
     private static readonly PieceType[] PromotionPieceTypes =
     [
@@ -37,7 +39,63 @@ public partial class Board
         PieceType.Queen
     ];
 
-    public List<Move> GetPseudoLegalMoves()
+    private bool IsCheck(Color color)
+    {
+        var kingPosition = _kingPositions[(int)color];
+
+        var forwardsDirection = color is Color.White ? Up : Down;
+
+        Square[] potentialPawnAttackSquares =
+        [
+            kingPosition + forwardsDirection + Right,
+            kingPosition + forwardsDirection + Left,
+        ];
+
+        foreach (var pawnAttackSquare in potentialPawnAttackSquares)
+        {
+            if (!pawnAttackSquare.IsWithinBoard())
+                continue;
+
+            if (this[pawnAttackSquare] is Piece potentialPawn &&
+                potentialPawn.Color != color &&
+                potentialPawn.Type is PieceType.Pawn)
+                return true;
+        }
+
+        foreach (var moveDirection in AllMoveDirections)
+        {
+            var directionLength = moveDirection.Length();
+
+            var currentPosition = kingPosition;
+            while ((currentPosition += moveDirection).IsWithinBoard())
+            {
+                if (this[currentPosition] is not Piece piece)
+                {
+                    if (directionLength == 3)
+                        break;
+
+                    continue;
+                }
+
+                if (piece.Color == color)
+                    break;
+
+                switch (directionLength)
+                {
+                    case 1 when piece.Type is PieceType.Queen or PieceType.Rook:
+                    case 2 when piece.Type is PieceType.Queen or PieceType.Bishop:
+                    case 3 when piece.Type is PieceType.Knight:
+                        return true;
+                }
+
+                break;
+            }
+        }
+
+        return false;
+    }
+
+    public List<Move> GetLegalMoves()
     {
         var moves = new List<Move>();
 
@@ -47,14 +105,24 @@ public partial class Board
             if (potentialPiece is not { } piece || piece.Color != _colorToMove)
                 continue;
 
-            AddPseudoLegalPieceMoves(piece, square, moves);
+            var currentColor = _colorToMove;
+            foreach (var move in GetPseudoLegalPieceMoves(piece, square))
+            {
+                MakeMove(move);
+                var isCheck = IsCheck(currentColor);
+                UndoLastMove();
+                if (!isCheck)
+                    moves.Add(move);
+            }
         }
 
         return moves;
     }
 
-    private void AddPseudoLegalPieceMoves(Piece piece, Square square, List<Move> moves)
+    private List<Move> GetPseudoLegalPieceMoves(Piece piece, Square square)
     {
+        var moves = new List<Move>();
+
         var directions = GetMoveVectorsForPiece(piece);
 
         foreach (var direction in directions)
@@ -82,10 +150,10 @@ public partial class Board
                         break;
 
                     // Two-square moves from non-starting position
-                    if (direction.Y == 2 && (square.Y != 1 || this[square+Up] is not null))
+                    if (direction.Y == 2 && (square.Y != 1 || this[square+Up] is not null || moveIsCapture))
                         break;
 
-                    if (direction.Y == -2 && (square.Y != 6 || this[square+Down] is not null))
+                    if (direction.Y == -2 && (square.Y != 6 || this[square+Down] is not null || moveIsCapture))
                         break;
 
                     // Capturing forward
@@ -127,24 +195,26 @@ public partial class Board
                 if (currentPosition == Squares.D1 &&
                     piece.Color is Color.White &&
                     _castlingPrivileges.WhiteQueenSide)
-                    moves.Add(new Move(Squares.E1, Squares.C1, piece));
+                    moves.Add(new Move(Squares.E1, Squares.C1, new Piece(PieceType.King, Color.White)));
 
                 if (currentPosition == Squares.F1 &&
                     piece.Color is Color.White &&
                     _castlingPrivileges.WhiteKingSide)
-                    moves.Add(new Move(Squares.E1, Squares.G1, piece));
+                    moves.Add(new Move(Squares.E1, Squares.G1, new Piece(PieceType.King, Color.White)));
 
                 if (currentPosition == Squares.D8 &&
                     piece.Color is Color.Black &&
                     _castlingPrivileges.BlackQueenSide)
-                    moves.Add(new Move(Squares.E8, Squares.C8, piece));
+                    moves.Add(new Move(Squares.E8, Squares.C8, new Piece(PieceType.King, Color.Black)));
 
                 if (currentPosition == Squares.F8 &&
                     piece.Color is Color.Black &&
                     _castlingPrivileges.BlackKingSide)
-                    moves.Add(new Move(Squares.E8, Squares.G8, piece));
+                    moves.Add(new Move(Squares.E8, Squares.G8, new Piece(PieceType.King, Color.Black)));
             }
         }
+
+        return moves;
     }
 
     private Vector[] GetMoveVectorsForPiece(Piece piece)

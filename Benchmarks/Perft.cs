@@ -27,7 +27,7 @@ public class Perft
         if (toDepth == 0)
             return 1;
 
-        var moves = board.GetPseudoLegalMoves();
+        var moves = board.GetLegalMoves();
         long sum = 1;
         foreach(var move in moves)
         {

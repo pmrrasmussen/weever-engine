@@ -16,6 +16,7 @@ public partial class Board
     private Color _colorToMove;
     private Square _enPassantAttackSquare;
     private CastlingPrivileges _castlingPrivileges;
+    private Square[] _kingPositions = [ Squares.NullSquare, Squares.NullSquare ];
 
     public Board()
     {
@@ -52,6 +53,17 @@ public partial class Board
     {
         get => _colorToMove;
         set => _colorToMove = value;
+    }
+
+    internal void UpdateKingPositions()
+    {
+        foreach (var square in Squares.All)
+        {
+            if (this[square] is not { Type: PieceType.King } piece)
+                continue;
+
+            _kingPositions[(int)piece.Color] = square;
+        }
     }
 
     public override string ToString()

@@ -19,6 +19,9 @@ public partial class Board
         this[move.From] = null;
         this[move.To] = pieceToPlace;
 
+        if (pieceToPlace.Type is PieceType.King)
+            _kingPositions[(int)_colorToMove] = move.To;
+
         _colorToMove = _colorToMove.Flip();
     }
 
@@ -37,6 +40,9 @@ public partial class Board
 
         this[lastMove.From] = lastMove.MovedPiece;
         this[lastMove.To] = lastMove.CapturedPiece;
+
+        if (lastMove.MovedPiece.Type is PieceType.King)
+            _kingPositions[(int)_colorToMove] = lastMove.From;
     }
 
     private void HandleUndoEnPassant(Move move)

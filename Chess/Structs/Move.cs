@@ -13,7 +13,7 @@ public readonly struct Move(
 
     public readonly Piece MovedPiece = movedPiece;
 
-    public readonly Piece? CapturedPiece;
+    public readonly Piece? CapturedPiece = capturedPiece;
 
     public readonly Piece? PromotionTo = promotionTo;
 

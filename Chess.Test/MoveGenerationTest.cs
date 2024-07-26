@@ -17,7 +17,7 @@ public class MoveGenerationTest
     {
         var board = BoardBuilder.GetDefaultStartingPosition();
 
-        var moves = board.GetPseudoLegalMoves();
+        var moves = board.GetLegalMoves();
         _testOutputHelper.WriteLine(board.ToString());
 
         foreach (var move in moves)
