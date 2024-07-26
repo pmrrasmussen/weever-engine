@@ -20,7 +20,6 @@ public partial class Board
         this[move.To] = pieceToPlace;
 
         _colorToMove = _colorToMove.Flip();
-        _halfMoveCount++;
     }
 
     public void UndoLastMove()
@@ -30,7 +29,6 @@ public partial class Board
         _castlingPrivileges = moveDelta.CastlingPrivileges;
         _enPassantAttackSquare = moveDelta.EnPassantAttackSquare;
         _colorToMove = _colorToMove.Flip();
-        _halfMoveCount--;
 
         var lastMove = moveDelta.Move;
 

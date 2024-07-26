@@ -28,6 +28,32 @@ public readonly struct Square(int x, int y) : IEquatable<Square>
     public static bool operator !=(Square a, Square b)
         => !a.Equals(b);
 
+    public static Square FromString(string square)
+    {
+        if (square.Length != 2)
+            throw new ArgumentOutOfRangeException($"Could not recognise the square: {square}");
+
+        var (stringX, stringY) = (square[0], square[1]);
+
+        var x = stringX switch
+        {
+            'A' => 0,
+            'B' => 1,
+            'C' => 2,
+            'D' => 3,
+            'E' => 4,
+            'F' => 5,
+            'G' => 6,
+            'H' => 7,
+            _ => throw new ArgumentOutOfRangeException($"Could not recognise the square: {square}"),
+        };
+
+        if (!int.TryParse(stringY.ToString(), out var y))
+            throw new ArgumentOutOfRangeException($"Could not recognise the square: {square}");
+
+        return new Square(x, y);
+    }
+
     public override string ToString()
     {
         var column = X switch

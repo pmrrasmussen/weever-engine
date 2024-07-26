@@ -13,7 +13,6 @@ public partial class Board
     private static readonly Vector Right = new Vector(1, 0);
 
     private readonly Piece?[,] _pieces;
-    private int _halfMoveCount;
     private Color _colorToMove;
     private Square _enPassantAttackSquare;
     private CastlingPrivileges _castlingPrivileges;
@@ -35,6 +34,24 @@ public partial class Board
     {
         get => _pieces[square.X, square.Y];
         set => _pieces[square.X, square.Y] = value;
+    }
+
+    internal CastlingPrivileges CastlingPrivileges
+    {
+        get => _castlingPrivileges;
+        set => _castlingPrivileges = value;
+    }
+
+    internal Square EnPassantAttackSquare
+    {
+        get => _enPassantAttackSquare;
+        set => _enPassantAttackSquare = value;
+    }
+
+    internal Color ColorToMove
+    {
+        get => _colorToMove;
+        set => _colorToMove = value;
     }
 
     public override string ToString()

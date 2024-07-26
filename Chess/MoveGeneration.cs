@@ -37,17 +37,17 @@ public partial class Board
         PieceType.Queen
     ];
 
-    public IEnumerable<Move> GetLegalMoves()
+    public IEnumerable<Move> GetPseudoLegalMoves()
     {
         var moves = new List<Move>();
 
         foreach (var square in Squares.All)
         {
-            var piece = this[square];
-            if (piece is null)
+            var potentialPiece = this[square];
+            if (potentialPiece is not { } piece || piece.Color != _colorToMove)
                 continue;
 
-            moves.AddRange(GetPseudoLegalPieceMoves(piece.Value, square));
+            moves.AddRange(GetPseudoLegalPieceMoves(piece, square));
         }
 
         return moves;

@@ -1,3 +1,4 @@
+using Chess.Builders;
 using Chess.Enums;
 using Chess.Structs;
 using Xunit.Abstractions;
@@ -16,12 +17,9 @@ public class MoveGenerationTest
     [Fact]
     public void GetLegalMoves_WhenSinglePawn_ShouldFindLegalMoves()
     {
-        var board = new Board();
+        var board = BoardBuilder.GetDefaultStartingPosition();
 
-        board[Squares.D1] = new Piece(PieceType.Queen, Color.White);
-        board[Squares.B3] = new Piece(PieceType.Pawn, Color.White);
-
-        var moves = board.GetLegalMoves();
+        var moves = board.GetPseudoLegalMoves();
         _testOutputHelper.WriteLine(board.ToString());
 
         foreach (var move in moves)
