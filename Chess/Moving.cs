@@ -84,9 +84,7 @@ public partial class Board
 
         // En passant capture
         if (move.To == _enPassantAttackSquare)
-        {
             this[_enPassantAttackSquare + moveDirectionForOtherColor] = null;
-        }
 
         // New en passant square
         var verticalMoveDelta = move.To.Y - move.From.Y;

@@ -24,13 +24,14 @@ public class MoveGenerationTest
         var moves = board.GetLegalMoves();
         _testOutputHelper.WriteLine(board.ToString());
 
-        var move = moves.First();
-        board.MakeMove(move);
-        _testOutputHelper.WriteLine(board.ToString());
+        foreach (var move in moves)
+        {
+            board.MakeMove(move);
+            _testOutputHelper.WriteLine(board.ToString());
+            _testOutputHelper.WriteLine(move.ToString());
+            board.UndoLastMove();
+        }
 
-        board.UndoLastMove();
-
         _testOutputHelper.WriteLine(board.ToString());
-        _testOutputHelper.WriteLine(move.ToString());
     }
 }

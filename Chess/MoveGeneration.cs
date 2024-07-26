@@ -77,16 +77,16 @@ public partial class Board
                 if (piece.Type is PieceType.Pawn)
                 {
                     // Diagonal move without capture
-                    if (Math.Abs(direction.Y) == 1 &&
+                    if (Math.Abs(direction.X) == 1 &&
                         !(currentPosition == _enPassantAttackSquare) &&
                         !moveIsCapture)
                         break;
 
                     // Two-square moves from non-starting position
-                    if (direction.Y == 2 && (square.X != 1 || this[square+Up] is not null))
+                    if (direction.Y == 2 && (square.Y != 1 || this[square+Up] is not null))
                         break;
 
-                    if (direction.Y == -2 && (square.X != 6 || this[square+Down] is not null))
+                    if (direction.Y == -2 && (square.Y != 6 || this[square+Down] is not null))
                         break;
 
                     // Capturing forward
