@@ -37,7 +37,7 @@ public partial class Board
         PieceType.Queen
     ];
 
-    public IEnumerable<Move> GetPseudoLegalMoves()
+    public List<Move> GetPseudoLegalMoves()
     {
         var moves = new List<Move>();
 
@@ -47,16 +47,15 @@ public partial class Board
             if (potentialPiece is not { } piece || piece.Color != _colorToMove)
                 continue;
 
-            moves.AddRange(GetPseudoLegalPieceMoves(piece, square));
+            AddPseudoLegalPieceMoves(piece, square, moves);
         }
 
         return moves;
     }
 
-    private IEnumerable<Move> GetPseudoLegalPieceMoves(Piece piece, Square square)
+    private void AddPseudoLegalPieceMoves(Piece piece, Square square, List<Move> moves)
     {
         var directions = GetMoveVectorsForPiece(piece);
-
 
         foreach (var direction in directions)
         {
@@ -99,56 +98,56 @@ public partial class Board
                         foreach (var pieceType in PromotionPieceTypes)
                         {
                             var promoteTo = new Piece(pieceType, piece.Color);
-                            yield return new Move(
+                            moves.Add(new Move(
                                 from: square,
                                 to: currentPosition,
                                 movedPiece: piece,
                                 capturedPiece: pieceAtCurrentPosition,
-                                promotionTo: promoteTo);
+                                promotionTo: promoteTo));
                         }
 
                         break;
                     }
                 }
 
-                yield return new Move(
+                moves.Add(new Move(
                     from: square,
                     to: currentPosition,
                     movedPiece: piece,
-                    capturedPiece: pieceAtCurrentPosition);
+                    capturedPiece: pieceAtCurrentPosition));
 
                 // Stop if the piece doesn't slide or we performed a capture
                 if (!PieceType.SlidingPieces.HasFlag(piece.Type) || moveIsCapture)
                     break;
 
                 // Add castling moves when a rook slides next to the king
-                if (piece.Type is PieceType.Rook && currentPosition.Y % 7 == 0)
-                {
-                    if (currentPosition == Squares.D1 &&
-                        piece.Color is Color.White &&
-                        _castlingPrivileges.WhiteQueenSide)
-                        yield return new Move(Squares.E1, Squares.C1, piece);
+                if (piece.Type is not PieceType.Rook || currentPosition.Y % 7 != 0)
+                    continue;
 
-                    if (currentPosition == Squares.F1 &&
-                        piece.Color is Color.White &&
-                        _castlingPrivileges.WhiteKingSide)
-                        yield return new Move(Squares.E1, Squares.G1, piece);
+                if (currentPosition == Squares.D1 &&
+                    piece.Color is Color.White &&
+                    _castlingPrivileges.WhiteQueenSide)
+                    moves.Add(new Move(Squares.E1, Squares.C1, piece));
 
-                    if (currentPosition == Squares.D8 &&
-                        piece.Color is Color.Black &&
-                        _castlingPrivileges.BlackQueenSide)
-                        yield return new Move(Squares.E8, Squares.C8, piece);
+                if (currentPosition == Squares.F1 &&
+                    piece.Color is Color.White &&
+                    _castlingPrivileges.WhiteKingSide)
+                    moves.Add(new Move(Squares.E1, Squares.G1, piece));
 
-                    if (currentPosition == Squares.F8 &&
-                        piece.Color is Color.Black &&
-                        _castlingPrivileges.BlackKingSide)
-                        yield return new Move(Squares.E8, Squares.G8, piece);
-                }
+                if (currentPosition == Squares.D8 &&
+                    piece.Color is Color.Black &&
+                    _castlingPrivileges.BlackQueenSide)
+                    moves.Add(new Move(Squares.E8, Squares.C8, piece));
+
+                if (currentPosition == Squares.F8 &&
+                    piece.Color is Color.Black &&
+                    _castlingPrivileges.BlackKingSide)
+                    moves.Add(new Move(Squares.E8, Squares.G8, piece));
             }
         }
     }
 
-    private IEnumerable<Vector> GetMoveVectorsForPiece(Piece piece)
+    private Vector[] GetMoveVectorsForPiece(Piece piece)
     {
         return piece.Type switch
         {
