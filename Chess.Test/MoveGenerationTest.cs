@@ -1,6 +1,4 @@
 using Chess.Builders;
-using Chess.Enums;
-using Chess.Structs;
 using Xunit.Abstractions;
 
 namespace Chess.Test;
