@@ -109,7 +109,7 @@ public partial class Board
             foreach (var move in GetPseudoLegalPieceMoves(piece, square))
             {
                 // Handle castling through check
-                if (move.MovedPiece.Type is PieceType.King && move.Length() == 2)
+                if (move.MovedPiece.Type is PieceType.King && Math.Abs((move.To - move.From).X) == 2 )
                 {
                     if (IsCheck(currentColor))
                         continue;
