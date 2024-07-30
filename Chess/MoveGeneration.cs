@@ -108,11 +108,31 @@ public partial class Board
             var currentColor = _colorToMove;
             foreach (var move in GetPseudoLegalPieceMoves(piece, square))
             {
+                // Handle castling through check
+                if (move.MovedPiece.Type is PieceType.King && move.Length() == 2)
+                {
+                    if (IsCheck(currentColor))
+                        continue;
+
+                    var inBetweenSquare = (move.To - move.From).X < 0
+                        ? move.To + Right
+                        : move.To + Left;
+                    var inBetweenMove = new Move(
+                        from: move.From,
+                        to: inBetweenSquare,
+                        movedPiece: move.MovedPiece);
+
+                    MakeMove(inBetweenMove);
+                    var isCheck = IsCheck(currentColor);
+                    UndoLastMove();
+                    if (isCheck)
+                        continue;
+                }
+
                 MakeMove(move);
-                var isCheck = IsCheck(currentColor);
-                UndoLastMove();
-                if (!isCheck)
+                if (!IsCheck(currentColor))
                     moves.Add(move);
+                UndoLastMove();
             }
         }
 
