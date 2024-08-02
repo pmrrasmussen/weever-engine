@@ -108,8 +108,11 @@ public partial class Board
             var currentColor = _colorToMove;
             foreach (var move in GetPseudoLegalPieceMoves(piece, square))
             {
+                var movedPiece = this[move.From] ?? throw new ArgumentOutOfRangeException(
+                    $"Invalid move {move} on board \n{ToString()}");
+
                 // Handle castling through check
-                if (move.MovedPiece.Type is PieceType.King && Math.Abs((move.To - move.From).X) == 2 )
+                if (movedPiece.Type is PieceType.King && Math.Abs((move.To - move.From).X) == 2 )
                 {
                     if (IsCheck(currentColor))
                         continue;
@@ -120,7 +123,7 @@ public partial class Board
                     var inBetweenMove = new Move(
                         from: move.From,
                         to: inBetweenSquare,
-                        movedPiece: move.MovedPiece);
+                        movedPiece: movedPiece);
 
                     MakeMove(inBetweenMove);
                     var isCheck = IsCheck(currentColor);

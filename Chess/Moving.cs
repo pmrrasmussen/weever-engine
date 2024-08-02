@@ -11,6 +11,9 @@ public partial class Board
     {
         _moveHistory.Push(new BoardMoveDelta(move, _castlingPrivileges, _enPassantAttackSquare));
 
+        var movedPiece = this[move.From] ?? throw new ArgumentOutOfRangeException(
+            $"Invalid move {move} with piece {move.MovedPiece} on board \n{ToString()}");
+
         HandleEnPassantWhenMakingMove(move);
         HandleCastlingWhenMakingMove(move);
         SetCastlingPrivilegesWhenMakingMove(move);

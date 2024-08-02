@@ -68,6 +68,7 @@ public class PerftTest
         long captures = 0;
         foreach(var move in moves)
         {
+            var boardCopy = board.Clone();
             board.MakeMove(move);
             var (cap, nod) = GetPossibleMovesCount(board, toDepth - 1);
             captures += cap;
@@ -75,6 +76,11 @@ public class PerftTest
             if (toDepth == 1 && move.CapturedPiece is not null)
                 captures++;
             board.UndoLastMove();
+            if (!boardCopy.Equals(board))
+            {
+                boardCopy.MakeMove(move);
+                boardCopy.UndoLastMove();
+            }
         }
 
         return (captures, nodes);
