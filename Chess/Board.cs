@@ -11,7 +11,7 @@ public partial class Board
     private static readonly Vector Left = new Vector(-1, 0);
     private static readonly Vector Right = new Vector(1, 0);
 
-    private readonly Piece?[,] _pieces;
+    private readonly Piece?[] _pieces;
     private Stack<BoardMoveDelta> _moveHistory = new();
     private Color _colorToMove;
     private Square _enPassantAttackSquare;
@@ -20,11 +20,14 @@ public partial class Board
 
     public Board()
     {
-        _pieces = new Piece?[8, 8];
+        _pieces = new Piece?[64];
         for (int x = 0; x < 8; x++)
         {
             for (int y = 0; y < 8; y++)
-                _pieces[x, y] = null;
+            {
+                var square = new Square(x, y);
+                this[square] = null;
+            }
         }
 
         _enPassantAttackSquare = default;
@@ -46,7 +49,8 @@ public partial class Board
         {
             for (var y = 0; y < 8; y++)
             {
-                newBoard._pieces[x, y] = _pieces[x, y];
+                var square = new Square(x, y);
+                newBoard[square] = this[square];
             }
         }
 
@@ -59,7 +63,8 @@ public partial class Board
         {
             for (int y = 0; y < 8; y++)
             {
-                if (!(otherBoard._pieces[x, y].Equals(_pieces[x, y])))
+                var square = new Square(x, y);
+                if (!(otherBoard[square].Equals(this[square])))
                     return false;
             }
         }
@@ -77,7 +82,8 @@ public partial class Board
         {
             for (int y = 0; y < 8; y++)
             {
-                if (!(otherBoard._pieces[x, y].Equals(_pieces[x, y])))
+                var square = new Square(x, y);
+                if (!(otherBoard[square].Equals(this[square])))
                     return false;
             }
         }
@@ -90,8 +96,8 @@ public partial class Board
 
     public Piece? this[Square square]
     {
-        get => _pieces[square.X, square.Y];
-        set => _pieces[square.X, square.Y] = value;
+        get => _pieces[square.X + (square.Y << 3)];
+        set => _pieces[square.X + (square.Y << 3)] = value;
     }
 
     internal CastlingPrivileges CastlingPrivileges
@@ -129,7 +135,10 @@ public partial class Board
         for (int y = 7; y >= 0; y--)
         {
             for (int x = 0; x < 8; x++)
-                stringRepresentation.Append(_pieces[x, y]?.ToString() ?? "\u00B7");
+            {
+                var square = new Square(x, y);
+                stringRepresentation.Append(this[square]?.ToString() ?? "\u00B7");
+            }
 
             stringRepresentation.Append('\n');
         }
