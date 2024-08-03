@@ -135,11 +135,11 @@ public partial class Board
                 (blackKingSide, blackQueenSide) = (false, false);
         }
 
-        whiteQueenSide &= move.From == Squares.A1 || move.To == Squares.A1;
-        whiteKingSide &= move.From == Squares.H1 || move.To == Squares.H1;
-        blackQueenSide &= move.From == Squares.A8 || move.To == Squares.A8;
-        blackKingSide &= move.From == Squares.H8 || move.To == Squares.H8;
+        whiteQueenSide &= move.From != Squares.A1 && move.To != Squares.A1;
+        whiteKingSide &= move.From != Squares.H1 && move.To != Squares.H1;
+        blackQueenSide &= move.From != Squares.A8 && move.To != Squares.A8;
+        blackKingSide &= move.From != Squares.H8 && move.To != Squares.H8;
 
-        _castlingPrivileges = new CastlingPrivileges(whiteKingSide, whiteQueenSide, blackKingSide, blackQueenSide);
+        _castlingPrivileges = new (whiteKingSide, whiteQueenSide, blackKingSide, blackQueenSide);
     }
 }
