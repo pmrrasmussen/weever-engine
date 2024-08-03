@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Chess.Enums;
 using Chess.Structs;
 
@@ -122,8 +121,7 @@ public partial class Board
                         : move.To + Left;
                     var inBetweenMove = new Move(
                         from: move.From,
-                        to: inBetweenSquare,
-                        movedPiece: movedPiece);
+                        to: inBetweenSquare);
 
                     MakeMove(inBetweenMove);
                     var isCheck = IsCheck(currentColor);
@@ -192,7 +190,6 @@ public partial class Board
                             moves.Add(new Move(
                                 from: square,
                                 to: currentPosition,
-                                movedPiece: piece,
                                 capturedPiece: pieceAtCurrentPosition,
                                 promotionTo: promoteTo));
                         }
@@ -204,7 +201,6 @@ public partial class Board
                 moves.Add(new Move(
                     from: square,
                     to: currentPosition,
-                    movedPiece: piece,
                     capturedPiece: pieceAtCurrentPosition));
 
                 // Stop if the piece doesn't slide or we performed a capture

@@ -10,13 +10,13 @@ public partial class Board
         _moveHistory.Push(new BoardMoveDelta(move, _castlingPrivileges, _enPassantAttackSquare));
 
         var movedPiece = this[move.From] ?? throw new ArgumentOutOfRangeException(
-            $"Invalid move {move} with piece {move.MovedPiece} on board \n{ToString()}");
+            $"Invalid move {move} on board \n{ToString()}");
 
-        HandleEnPassantWhenMakingMove(move);
-        HandleCastlingWhenMakingMove(move);
-        SetCastlingPrivilegesWhenMakingMove(move);
+        HandleEnPassantWhenMakingMove(move, movedPiece);
+        HandleCastlingWhenMakingMove(move, movedPiece);
+        SetCastlingPrivilegesWhenMakingMove(move, movedPiece);
 
-        var pieceToPlace = move.PromotionTo ?? move.MovedPiece;
+        var pieceToPlace = move.PromotionTo ?? movedPiece;
         this[move.From] = null;
         this[move.To] = pieceToPlace;
 
@@ -30,25 +30,30 @@ public partial class Board
     {
         var moveDelta = _moveHistory.Pop();
 
+        var movedPiece = this[moveDelta.Move.To] ?? throw new ArgumentOutOfRangeException(
+            $"Invalid undo of move {moveDelta.Move} on board \n{ToString()}");
+
         _castlingPrivileges = moveDelta.CastlingPrivileges;
         _enPassantAttackSquare = moveDelta.EnPassantAttackSquare;
         _colorToMove = _colorToMove.Flip();
 
         var lastMove = moveDelta.Move;
 
-        HandleUndoEnPassant(lastMove);
-        HandleUndoCastling(lastMove);
+        HandleUndoEnPassant(lastMove, movedPiece);
+        HandleUndoCastling(lastMove, movedPiece);
 
-        this[lastMove.From] = lastMove.MovedPiece;
+        this[lastMove.From] = moveDelta.Move.PromotionTo is null
+            ? movedPiece
+            : new Piece(PieceType.Pawn, _colorToMove);
         this[lastMove.To] = lastMove.CapturedPiece;
 
-        if (lastMove.MovedPiece.Type is PieceType.King)
+        if (movedPiece.Type is PieceType.King)
             _kingPositions[(int)_colorToMove] = lastMove.From;
     }
 
-    private void HandleUndoEnPassant(Move move)
+    private void HandleUndoEnPassant(Move move, Piece movedPiece)
     {
-        if (move.MovedPiece.Type is not PieceType.Pawn || _enPassantAttackSquare == default)
+        if (movedPiece.Type is not PieceType.Pawn || _enPassantAttackSquare == default)
             return;
 
         var moveDirectionForOtherColor = _colorToMove is Color.White ? Down : Up;
@@ -62,9 +67,9 @@ public partial class Board
 
     }
 
-    private void HandleUndoCastling(Move move)
+    private void HandleUndoCastling(Move move, Piece movedPiece)
     {
-        if (move.MovedPiece.Type is not PieceType.King || Math.Abs((move.From-move.To).X) != 2)
+        if (movedPiece.Type is not PieceType.King || Math.Abs((move.From-move.To).X) != 2)
             return;
 
         var horizontalMoveDelta = move.To.X - move.From.X;
@@ -80,9 +85,9 @@ public partial class Board
         this[currentRookPosition] = null;
     }
 
-    private void HandleEnPassantWhenMakingMove(Move move)
+    private void HandleEnPassantWhenMakingMove(Move move, Piece movedPiece)
     {
-        if (move.MovedPiece.Type is not PieceType.Pawn || _enPassantAttackSquare == default)
+        if (movedPiece.Type is not PieceType.Pawn || _enPassantAttackSquare == default)
             return;
 
         var moveDirectionForOtherColor = _colorToMove is Color.White ? Down : Up;
@@ -99,9 +104,9 @@ public partial class Board
             : default;
     }
 
-    private void HandleCastlingWhenMakingMove(Move move)
+    private void HandleCastlingWhenMakingMove(Move move, Piece movedPiece)
     {
-        if (move.MovedPiece.Type is not PieceType.King || Math.Abs((move.From-move.To).X) != 2)
+        if (movedPiece.Type is not PieceType.King || Math.Abs((move.From-move.To).X) != 2)
             return;
 
         var horizontalMoveDelta = move.To.X - move.From.X;
@@ -117,7 +122,7 @@ public partial class Board
         this[currentRookPosition] = null;
     }
 
-    private void SetCastlingPrivilegesWhenMakingMove(Move move)
+    private void SetCastlingPrivilegesWhenMakingMove(Move move, Piece movedPiece)
     {
         var (whiteKingSide, whiteQueenSide, blackKingSide, blackQueenSide) =
             (
@@ -127,7 +132,7 @@ public partial class Board
                 _castlingPrivileges.BlackQueenSide
             );
 
-        if (move.MovedPiece.Type is PieceType.King)
+        if (movedPiece.Type is PieceType.King)
         {
             if (_colorToMove is Color.White)
                 (whiteKingSide, whiteQueenSide) = (false, false);
