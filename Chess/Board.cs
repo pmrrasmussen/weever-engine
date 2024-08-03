@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using Chess.Enums;
-using Chess.Exceptions;
 using Chess.Structs;
 
 namespace Chess;
@@ -13,6 +12,7 @@ public partial class Board
     private static readonly Vector Right = new Vector(1, 0);
 
     private readonly Piece?[,] _pieces;
+    private Stack<BoardMoveDelta> _moveHistory = new();
     private Color _colorToMove;
     private Square _enPassantAttackSquare;
     private CastlingPrivileges _castlingPrivileges;
@@ -33,16 +33,18 @@ public partial class Board
 
     public Board Clone()
     {
-        var newBoard = new Board();
-
-        newBoard._colorToMove = _colorToMove;
-        newBoard._castlingPrivileges = _castlingPrivileges;
-        newBoard._kingPositions = _kingPositions.ToArray();
-        newBoard._enPassantAttackSquare = _enPassantAttackSquare;
-
-        for (int x = 0; x < 8; x++)
+        var newBoard = new Board
         {
-            for (int y = 0; y < 8; y++)
+            _colorToMove = _colorToMove,
+            _castlingPrivileges = _castlingPrivileges,
+            _kingPositions = _kingPositions.ToArray(),
+            _enPassantAttackSquare = _enPassantAttackSquare,
+            _moveHistory = new(_moveHistory.Reverse())
+        };
+
+        for (var x = 0; x < 8; x++)
+        {
+            for (var y = 0; y < 8; y++)
             {
                 newBoard._pieces[x, y] = _pieces[x, y];
             }
@@ -65,7 +67,8 @@ public partial class Board
         return otherBoard._colorToMove == _colorToMove &&
                otherBoard._kingPositions.SequenceEqual(_kingPositions) &&
                otherBoard._castlingPrivileges.Equals(_castlingPrivileges) &&
-               otherBoard._enPassantAttackSquare.Equals(_enPassantAttackSquare);
+               otherBoard._enPassantAttackSquare.Equals(_enPassantAttackSquare) &&
+               otherBoard._moveHistory.SequenceEqual(_moveHistory);
     }
 
     public Piece? this[Square square]

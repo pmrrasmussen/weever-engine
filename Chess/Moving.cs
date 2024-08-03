@@ -5,8 +5,6 @@ namespace Chess;
 
 public partial class Board
 {
-    private readonly Stack<BoardMoveDelta> _moveHistory = new();
-
     public void MakeMove(Move move)
     {
         _moveHistory.Push(new BoardMoveDelta(move, _castlingPrivileges, _enPassantAttackSquare));
