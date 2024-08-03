@@ -71,6 +71,23 @@ public partial class Board
                otherBoard._moveHistory.SequenceEqual(_moveHistory);
     }
 
+    public bool HistoryAgnosticEquals(Board otherBoard)
+    {
+        for (int x = 0; x < 8; x++)
+        {
+            for (int y = 0; y < 8; y++)
+            {
+                if (!(otherBoard._pieces[x, y].Equals(_pieces[x, y])))
+                    return false;
+            }
+        }
+
+        return otherBoard._colorToMove == _colorToMove &&
+               otherBoard._kingPositions.SequenceEqual(_kingPositions) &&
+               otherBoard._castlingPrivileges.Equals(_castlingPrivileges) &&
+               otherBoard._enPassantAttackSquare.Equals(_enPassantAttackSquare);
+    }
+
     public Piece? this[Square square]
     {
         get => _pieces[square.X, square.Y];
