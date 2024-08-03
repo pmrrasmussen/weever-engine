@@ -64,7 +64,7 @@ public partial class Board
 
     private void HandleUndoCastling(Move move)
     {
-        if (move.MovedPiece.Type is not PieceType.King || move.Length() != 2)
+        if (move.MovedPiece.Type is not PieceType.King || Math.Abs((move.From-move.To).X) != 2)
             return;
 
         var horizontalMoveDelta = move.To.X - move.From.X;
@@ -101,7 +101,7 @@ public partial class Board
 
     private void HandleCastlingWhenMakingMove(Move move)
     {
-        if (move.MovedPiece.Type is not PieceType.King || move.Length() != 2)
+        if (move.MovedPiece.Type is not PieceType.King || Math.Abs((move.From-move.To).X) != 2)
             return;
 
         var horizontalMoveDelta = move.To.X - move.From.X;
