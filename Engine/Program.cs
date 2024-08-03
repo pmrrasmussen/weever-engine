@@ -27,7 +27,6 @@ public class Program
     {
         if (toDepth == 0)
         {
-            // _testOutputHelper.WriteLine(board.ToString());
             return (0, 1);
         }
 
@@ -38,10 +37,6 @@ public class Program
         {
             board.MakeMove(move);
             var (cap, nod) = GetPossibleMovesCount(board, toDepth - 1);
-            captures += cap;
-            nodes += nod;
-            if (toDepth == 1 && move.CapturedPiece is not null)
-                captures++;
             board.UndoLastMove();
         }
 
