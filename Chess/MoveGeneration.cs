@@ -44,22 +44,9 @@ public partial class Board
 
         var forwardsDirection = color is Color.White ? Up : Down;
 
-        Square[] potentialPawnAttackSquares =
-        [
-            kingPosition + forwardsDirection + Right,
-            kingPosition + forwardsDirection + Left,
-        ];
-
-        foreach (var pawnAttackSquare in potentialPawnAttackSquares)
-        {
-            if (!pawnAttackSquare.IsWithinBoard())
-                continue;
-
-            if (this[pawnAttackSquare] is Piece potentialPawn &&
-                potentialPawn.Color != color &&
-                potentialPawn.Type is PieceType.Pawn)
-                return true;
-        }
+        if (IsOppositeColouredPawn(color, kingPosition + forwardsDirection + Right) ||
+            IsOppositeColouredPawn(color, kingPosition + forwardsDirection + Left))
+            return true;
 
         foreach (var moveDirection in AllMoveDirections)
         {
@@ -94,9 +81,21 @@ public partial class Board
         return false;
     }
 
+    private bool IsOppositeColouredPawn(Color color, Square square)
+    {
+        if (!square.IsWithinBoard())
+            return false;
+
+        if (this[square] is Piece potentialPawn &&
+            potentialPawn.Color != color &&
+            potentialPawn.Type is PieceType.Pawn)
+            return true;
+        return false;
+    }
+
     public List<Move> GetLegalMoves()
     {
-        var moves = new List<Move>();
+        var pseudoLegalMoves = new List<Move>();
 
         foreach (var square in Squares.All)
         {
@@ -104,46 +103,49 @@ public partial class Board
             if (potentialPiece is not { } piece || piece.Color != _colorToMove)
                 continue;
 
-            var currentColor = _colorToMove;
-            foreach (var move in GetPseudoLegalPieceMoves(piece, square))
-            {
-                var movedPiece = this[move.From] ?? throw new ArgumentOutOfRangeException(
-                    $"Invalid move {move} on board \n{ToString()}");
-
-                // Handle castling through check
-                if (movedPiece.Type is PieceType.King && Math.Abs((move.To - move.From).X) == 2 )
-                {
-                    if (IsCheck(currentColor))
-                        continue;
-
-                    var inBetweenSquare = (move.To - move.From).X < 0
-                        ? move.To + Right
-                        : move.To + Left;
-                    var inBetweenMove = new Move(
-                        from: move.From,
-                        to: inBetweenSquare);
-
-                    MakeMove(inBetweenMove);
-                    var isCheck = IsCheck(currentColor);
-                    UndoLastMove();
-                    if (isCheck)
-                        continue;
-                }
-
-                MakeMove(move);
-                if (!IsCheck(currentColor))
-                    moves.Add(move);
-                UndoLastMove();
-            }
+            AddPseudoLegalPieceMoves(piece, square, pseudoLegalMoves);
         }
 
-        return moves;
+        return pseudoLegalMoves.Where(move => !MovesIntoCheck(move)).ToList();
     }
 
-    private List<Move> GetPseudoLegalPieceMoves(Piece piece, Square square)
+    private bool MovesIntoCheck(Move move)
     {
-        var moves = new List<Move>();
+        bool isCheck;
 
+        var currentColor = _colorToMove;
+        var movedPiece = this[move.From] ?? throw new ArgumentOutOfRangeException(
+            $"Invalid move {move} on board \n{ToString()}");
+
+        // Handle castling through check
+        if (movedPiece.Type is PieceType.King && Math.Abs((move.To - move.From).X) == 2 )
+        {
+            if (IsCheck(currentColor))
+                return true;
+
+            var inBetweenSquare = (move.To - move.From).X < 0
+                ? move.To + Right
+                : move.To + Left;
+            var inBetweenMove = new Move(
+                from: move.From,
+                to: inBetweenSquare);
+
+            MakeMove(inBetweenMove);
+            isCheck = IsCheck(currentColor);
+            UndoLastMove();
+            if (isCheck)
+                return true;
+        }
+
+        MakeMove(move);
+        isCheck = IsCheck(currentColor);
+        UndoLastMove();
+
+        return isCheck;
+    }
+
+    private void AddPseudoLegalPieceMoves(Piece piece, Square square, List<Move> moves)
+    {
         var directions = GetMoveVectorsForPiece(piece);
 
         foreach (var direction in directions)
@@ -159,8 +161,6 @@ public partial class Board
                     break;
 
                 var moveIsCapture = pieceAtCurrentPosition is not null;
-
-                // TODO: Also check that the move does not cause the king to be in danger!!
 
                 if (piece.Type is PieceType.Pawn)
                 {
@@ -230,8 +230,6 @@ public partial class Board
                     moves.Add(new Move(Squares.E8, Squares.G8));
             }
         }
-
-        return moves;
     }
 
     private Vector[] GetMoveVectorsForPiece(Piece piece)
