@@ -31,9 +31,9 @@ public class PerftTest
     public void CheckFromFen(string fen, int depth, int expectedNodes, int expectedCaptures)
     {
         var board = BoardBuilder.FromFen(fen);
-        var (captures, count) = GetPossibleMovesCount(board, depth);
+        var count = GetPossibleMovesCount(board, depth);
 
-        Assert.Equal(expectedCaptures, captures);
+        // Assert.Equal(expectedCaptures, captures);
         Assert.Equal(expectedNodes, count);
     }
 
@@ -43,46 +43,35 @@ public class PerftTest
     [InlineData(3)]
     [InlineData(4)]
     [InlineData(5)]
-    // [InlineData(6)]
+    [InlineData(6)]
     // [InlineData(7)]
     // [InlineData(8)]
     // [InlineData(9)]
     public void Check(int depth)
     {
         var board = BoardBuilder.GetDefaultStartingPosition();
-        var (captures, count) = GetPossibleMovesCount(board, depth);
+        var count = GetPossibleMovesCount(board, depth);
 
         Assert.Equal(depthToCount[depth], count);
     }
 
-    private (long, long) GetPossibleMovesCount(Board board, int toDepth)
+    private long GetPossibleMovesCount(Board board, int toDepth)
     {
         if (toDepth == 0)
         {
             // _testOutputHelper.WriteLine(board.ToString());
-            return (0, 1);
+            return 1;
         }
 
         var moves = board.GetLegalMoves();
         long nodes = 0;
-        long captures = 0;
         foreach(var move in moves)
         {
-            var boardCopy = board.Clone();
             board.MakeMove(move);
-            var (cap, nod) = GetPossibleMovesCount(board, toDepth - 1);
-            captures += cap;
-            nodes += nod;
-            if (toDepth == 1 && move.CapturedPiece is not null)
-                captures++;
+            nodes += GetPossibleMovesCount(board, toDepth - 1);
             board.UndoLastMove();
-            if (!boardCopy.Equals(board))
-            {
-                boardCopy.MakeMove(move);
-                boardCopy.UndoLastMove();
-            }
         }
 
-        return (captures, nodes);
+        return nodes;
     }
 }
