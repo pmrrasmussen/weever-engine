@@ -60,26 +60,26 @@ public class BoardBuilder
     {
         return piece switch
         {
-            'K' => new Piece(PieceType.King, Color.White),
-            'Q' => new Piece(PieceType.Queen, Color.White),
-            'R' => new Piece(PieceType.Rook, Color.White),
-            'B' => new Piece(PieceType.Bishop, Color.White),
-            'N' => new Piece(PieceType.Knight, Color.White),
-            'P' => new Piece(PieceType.Pawn, Color.White),
-            'k' => new Piece(PieceType.King, Color.Black),
-            'q' => new Piece(PieceType.Queen, Color.Black),
-            'r' => new Piece(PieceType.Rook, Color.Black),
-            'b' => new Piece(PieceType.Bishop, Color.Black),
-            'n' => new Piece(PieceType.Knight, Color.Black),
-            'p' => new Piece(PieceType.Pawn, Color.Black),
+            'K' => Piece.WhiteKing,
+            'Q' => Piece.WhiteQueen,
+            'R' => Piece.WhiteRook,
+            'B' => Piece.WhiteBishop,
+            'N' => Piece.WhiteKnight,
+            'P' => Piece.WhitePawn,
+            'k' => Piece.BlackKing,
+            'q' => Piece.BlackQueen,
+            'r' => Piece.BlackRook,
+            'b' => Piece.BlackBishop,
+            'n' => Piece.BlackKnight,
+            'p' => Piece.BlackPawn,
         };
     }
 
-    private static Color GetColorToMoveFromFen(string fenColorToMove)
+    private static Piece GetColorToMoveFromFen(string fenColorToMove)
     {
         return fenColorToMove.Equals("w", StringComparison.OrdinalIgnoreCase)
-            ? Color.White
-            : Color.Black;
+            ? Piece.White
+            : Piece.Black;
     }
 
     private static CastlingPrivileges GetCastlingPrivilegesFromFen(string fenCastlingPrivileges)

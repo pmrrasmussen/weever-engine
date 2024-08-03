@@ -1,3 +1,4 @@
+using System.Drawing;
 using Chess.Enums;
 using Chess.Structs;
 
@@ -30,19 +31,20 @@ public partial class Board
     ];
     private static readonly Vector[] AllMoveDirections = QueenMoveDirections.Concat(KnightMoveDirections).ToArray();
 
-    private static readonly PieceType[] PromotionPieceTypes =
+    private static readonly Piece[] PromotionPieceTypes =
     [
-        PieceType.Bishop,
-        PieceType.Knight,
-        PieceType.Rook,
-        PieceType.Queen
+        Piece.Bishop,
+        Piece.Knight,
+        Piece.Rook,
+        Piece.Queen
     ];
 
-    private bool IsCheck(Color color)
+    private bool IsCheck(Piece color)
     {
-        var kingPosition = _kingPositions[(int)color];
+        var kingIndex = color is Piece.White ? 0 : 1;
+        var kingPosition = _kingPositions[kingIndex];
 
-        var forwardsDirection = color is Color.White ? Up : Down;
+        var forwardsDirection = color.HasFlag(Piece.White) ? Up : Down;
 
         if (IsOppositeColouredPawn(color, kingPosition + forwardsDirection + Right) ||
             IsOppositeColouredPawn(color, kingPosition + forwardsDirection + Left))
@@ -55,7 +57,8 @@ public partial class Board
             var currentPosition = kingPosition;
             while ((currentPosition += moveDirection).IsWithinBoard())
             {
-                if (this[currentPosition] is not Piece piece)
+                var piece = this[currentPosition];
+                if (piece is Piece.None)
                 {
                     if (directionLength == 3)
                         break;
@@ -63,14 +66,14 @@ public partial class Board
                     continue;
                 }
 
-                if (piece.Color == color)
+                if (piece.HasFlag(color))
                     break;
 
                 switch (directionLength)
                 {
-                    case 1 when piece.Type is PieceType.Queen or PieceType.Rook:
-                    case 2 when piece.Type is PieceType.Queen or PieceType.Bishop:
-                    case 3 when piece.Type is PieceType.Knight:
+                    case 1 when (piece & (Piece.Queen | Piece.Rook)) != 0:
+                    case 2 when (piece & (Piece.Queen | Piece.Bishop)) != 0:
+                    case 3 when piece.HasFlag(Piece.Knight):
                         return true;
                 }
 
@@ -81,16 +84,15 @@ public partial class Board
         return false;
     }
 
-    private bool IsOppositeColouredPawn(Color color, Square square)
+    private bool IsOppositeColouredPawn(Piece color, Square square)
     {
         if (!square.IsWithinBoard())
             return false;
 
-        if (this[square] is Piece potentialPawn &&
-            potentialPawn.Color != color &&
-            potentialPawn.Type is PieceType.Pawn)
-            return true;
-        return false;
+        var piece = this[square];
+        return piece != Piece.None &&
+               !piece.HasFlag(color) &&
+               piece.HasFlag(Piece.Pawn);
     }
 
     public List<Move> GetLegalMoves()
@@ -99,8 +101,8 @@ public partial class Board
 
         foreach (var square in Squares.All)
         {
-            var potentialPiece = this[square];
-            if (potentialPiece is not { } piece || piece.Color != _colorToMove)
+            var piece = this[square];
+            if (piece == Piece.None || !piece.HasFlag(_colorToMove))
                 continue;
 
             AddPseudoLegalPieceMoves(piece, square, pseudoLegalMoves);
@@ -124,11 +126,10 @@ public partial class Board
         bool isCheck;
 
         var currentColor = _colorToMove;
-        var movedPiece = this[move.From] ?? throw new ArgumentOutOfRangeException(
-            $"Invalid move {move} on board \n{ToString()}");
+        var movedPiece = this[move.From];
 
         // Handle castling through check
-        if (movedPiece.Type is PieceType.King && Math.Abs((move.To - move.From).X) == 2 )
+        if (movedPiece.HasFlag(Piece.King) && Math.Abs((move.To - move.From).X) == 2)
         {
             if (IsCheck(currentColor))
                 return true;
@@ -167,12 +168,13 @@ public partial class Board
                 var pieceAtCurrentPosition = this[currentPosition];
 
                 // Stop if we hit our own piece
-                if (pieceAtCurrentPosition?.Color == piece.Color)
+                if (pieceAtCurrentPosition is not Piece.None &&
+                    (byte)pieceAtCurrentPosition % 4 == (byte)piece % 4)
                     break;
 
-                var moveIsCapture = pieceAtCurrentPosition is not null;
+                var moveIsCapture = pieceAtCurrentPosition is not Piece.None;
 
-                if (piece.Type is PieceType.Pawn)
+                if (piece.HasFlag(Piece.Pawn))
                 {
                     // Diagonal move without capture
                     if (Math.Abs(direction.X) == 1 &&
@@ -181,10 +183,10 @@ public partial class Board
                         break;
 
                     // Two-square moves from non-starting position
-                    if (direction.Y == 2 && (square.Y != 1 || this[square+Up] is not null || moveIsCapture))
+                    if (direction.Y == 2 && (square.Y != 1 || this[square+Up] != Piece.None || moveIsCapture))
                         break;
 
-                    if (direction.Y == -2 && (square.Y != 6 || this[square+Down] is not null || moveIsCapture))
+                    if (direction.Y == -2 && (square.Y != 6 || this[square+Down] != Piece.None || moveIsCapture))
                         break;
 
                     // Capturing forward
@@ -194,9 +196,10 @@ public partial class Board
                     // Promotion
                     if (currentPosition.Y % 7 == 0)
                     {
+                        var pieceColor = piece.HasFlag(Piece.White) ? Piece.White : Piece.Black;
                         foreach (var pieceType in PromotionPieceTypes)
                         {
-                            var promoteTo = new Piece(pieceType, piece.Color);
+                            var promoteTo = pieceType | pieceColor;
                             moves.Add(new Move(
                                 from: square,
                                 to: currentPosition,
@@ -212,30 +215,31 @@ public partial class Board
                     to: currentPosition));
 
                 // Stop if the piece doesn't slide or we performed a capture
-                if (!PieceType.SlidingPieces.HasFlag(piece.Type) || moveIsCapture)
+                if ((piece & (Piece.Bishop | Piece.Queen | Piece.Rook)) == 0 ||
+                    moveIsCapture)
                     break;
 
                 // Add castling moves when a rook slides next to the king
-                if (piece.Type is not PieceType.Rook || currentPosition.Y % 7 != 0)
+                if (!piece.HasFlag(Piece.Rook) || currentPosition.Y % 7 != 0)
                     continue;
 
                 if (currentPosition == Squares.D1 &&
-                    piece.Color is Color.White &&
+                    piece.HasFlag(Piece.White) &&
                     _castlingPrivileges.WhiteQueenSide)
                     moves.Add(new Move(Squares.E1, Squares.C1));
 
                 if (currentPosition == Squares.F1 &&
-                    piece.Color is Color.White &&
+                    piece.HasFlag(Piece.White) &&
                     _castlingPrivileges.WhiteKingSide)
                     moves.Add(new Move(Squares.E1, Squares.G1));
 
                 if (currentPosition == Squares.D8 &&
-                    piece.Color is Color.Black &&
+                    piece.HasFlag(Piece.Black) &&
                     _castlingPrivileges.BlackQueenSide)
                     moves.Add(new Move(Squares.E8, Squares.C8));
 
                 if (currentPosition == Squares.F8 &&
-                    piece.Color is Color.Black &&
+                    piece.HasFlag(Piece.Black) &&
                     _castlingPrivileges.BlackKingSide)
                     moves.Add(new Move(Squares.E8, Squares.G8));
             }
@@ -244,17 +248,17 @@ public partial class Board
 
     private Vector[] GetMoveVectorsForPiece(Piece piece)
     {
-        return piece.Type switch
+        return piece switch
         {
-            PieceType.King   => KingMoveDirections,
-            PieceType.Queen  => QueenMoveDirections,
-            PieceType.Rook   => RookMoveDirections,
-            PieceType.Bishop => BishopMoveDirections,
-            PieceType.Knight => KnightMoveDirections,
-            PieceType.Pawn   => piece.Color is Color.White
+            Piece.WhiteKing or Piece.BlackKing   => KingMoveDirections,
+            Piece.WhiteQueen or Piece.BlackQueen  => QueenMoveDirections,
+            Piece.WhiteRook or Piece.BlackRook   => RookMoveDirections,
+            Piece.WhiteBishop or Piece.BlackBishop => BishopMoveDirections,
+            Piece.WhiteKnight or Piece.BlackKnight => KnightMoveDirections,
+            Piece.WhitePawn or Piece.BlackPawn   => piece.HasFlag(Piece.White)
                 ? WhitePawnMoveDirections
                 : BlackPawnMoveDirections,
-            _ => throw new ArgumentOutOfRangeException($"Unknown piece type {piece.Type}"),
+            _ => throw new ArgumentOutOfRangeException($"Unknown piece type {piece}"),
         };
     }
 }

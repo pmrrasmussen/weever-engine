@@ -11,22 +11,22 @@ public partial class Board
     private static readonly Vector Left = new Vector(-1, 0);
     private static readonly Vector Right = new Vector(1, 0);
 
-    private readonly Piece?[] _pieces;
+    private readonly Piece[] _pieces;
     private Stack<BoardMoveDelta> _moveHistory = new();
-    private Color _colorToMove;
+    private Piece _colorToMove = Piece.White;
     private Square _enPassantAttackSquare;
     private CastlingPrivileges _castlingPrivileges;
     private Square[] _kingPositions = [ Squares.NullSquare, Squares.NullSquare ];
 
     public Board()
     {
-        _pieces = new Piece?[64];
+        _pieces = new Piece[64];
         for (int x = 0; x < 8; x++)
         {
             for (int y = 0; y < 8; y++)
             {
                 var square = new Square(x, y);
-                this[square] = null;
+                this[square] = Piece.None;
             }
         }
 
@@ -94,7 +94,7 @@ public partial class Board
                otherBoard._enPassantAttackSquare.Equals(_enPassantAttackSquare);
     }
 
-    public Piece? this[Square square]
+    public Piece this[Square square]
     {
         get => _pieces[square.X + (square.Y << 3)];
         set => _pieces[square.X + (square.Y << 3)] = value;
@@ -112,7 +112,7 @@ public partial class Board
         set => _enPassantAttackSquare = value;
     }
 
-    internal Color ColorToMove
+    internal Piece ColorToMove
     {
         get => _colorToMove;
         set => _colorToMove = value;
@@ -122,10 +122,11 @@ public partial class Board
     {
         foreach (var square in Squares.All)
         {
-            if (this[square] is not { Type: PieceType.King } piece)
+            if (!this[square].HasFlag(Piece.King))
                 continue;
 
-            _kingPositions[(int)piece.Color] = square;
+            var kingIndex = this[square].HasFlag(Piece.White) ? 0 : 1;
+            _kingPositions[kingIndex] = square;
         }
     }
 
@@ -137,7 +138,7 @@ public partial class Board
             for (int x = 0; x < 8; x++)
             {
                 var square = new Square(x, y);
-                stringRepresentation.Append(this[square]?.ToString() ?? "\u00B7");
+                stringRepresentation.Append(PieceExtensions.PieceToString(this[square]));
             }
 
             stringRepresentation.Append('\n');

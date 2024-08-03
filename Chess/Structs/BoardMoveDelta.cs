@@ -1,10 +1,12 @@
+using Chess.Enums;
+
 namespace Chess.Structs;
 
 public readonly struct BoardMoveDelta(
     Move move,
     CastlingPrivileges castlingPrivileges,
     Square enPassantAttackSquare,
-    Piece? directlyCapturedPiece)
+    Piece directlyCapturedPiece = Piece.None)
 {
     public readonly Move Move = move;
 
@@ -12,5 +14,5 @@ public readonly struct BoardMoveDelta(
 
     public readonly Square EnPassantAttackSquare = enPassantAttackSquare;
 
-    public readonly Piece? DirectlyCapturedPiece = directlyCapturedPiece;
+    public readonly Piece DirectlyCapturedPiece = directlyCapturedPiece;
 }
