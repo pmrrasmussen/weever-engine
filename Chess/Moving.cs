@@ -7,14 +7,19 @@ public partial class Board
 {
     public void MakeMove(Move move)
     {
-        _moveHistory.Push(new BoardMoveDelta(move, _castlingPrivileges, _enPassantAttackSquare));
+        _moveHistory.Push(new BoardMoveDelta(
+            move,
+            _castlingPrivileges,
+            _enPassantAttackSquare,
+            directlyCapturedPiece: this[move.To]));
 
         var movedPiece = this[move.From] ?? throw new ArgumentOutOfRangeException(
             $"Invalid move {move} on board \n{ToString()}");
 
-        HandleEnPassantWhenMakingMove(move, movedPiece);
+        HandleEnPassantCaptureWhenMakingMove(move, movedPiece);
         HandleCastlingWhenMakingMove(move, movedPiece);
         SetCastlingPrivilegesWhenMakingMove(move, movedPiece);
+        _enPassantAttackSquare = NewEnPassantSquareWhenMakingMove(move, movedPiece);
 
         var pieceToPlace = move.PromotionTo ?? movedPiece;
         this[move.From] = null;
@@ -45,7 +50,7 @@ public partial class Board
         this[lastMove.From] = moveDelta.Move.PromotionTo is null
             ? movedPiece
             : new Piece(PieceType.Pawn, _colorToMove);
-        this[lastMove.To] = lastMove.CapturedPiece;
+        this[lastMove.To] = moveDelta.DirectlyCapturedPiece;
 
         if (movedPiece.Type is PieceType.King)
             _kingPositions[(int)_colorToMove] = lastMove.From;
@@ -85,23 +90,28 @@ public partial class Board
         this[currentRookPosition] = null;
     }
 
-    private void HandleEnPassantWhenMakingMove(Move move, Piece movedPiece)
+    private void HandleEnPassantCaptureWhenMakingMove(Move move, Piece movedPiece)
     {
         if (movedPiece.Type is not PieceType.Pawn || _enPassantAttackSquare == default)
             return;
 
         var moveDirectionForOtherColor = _colorToMove is Color.White ? Down : Up;
-
-        // En passant capture
         if (move.To == _enPassantAttackSquare)
             this[_enPassantAttackSquare + moveDirectionForOtherColor] = null;
+    }
 
-        // New en passant square
+    private Square NewEnPassantSquareWhenMakingMove(Move move, Piece movedPiece)
+    {
+        if (movedPiece.Type is not PieceType.Pawn)
+            return default;
+
         var verticalMoveDelta = move.To.Y - move.From.Y;
-        var enPassantMadePossible = Math.Abs(verticalMoveDelta) == 2;
-        _enPassantAttackSquare = enPassantMadePossible
-            ? move.To + moveDirectionForOtherColor
-            : default;
+        if (Math.Abs(verticalMoveDelta) != 2)
+            return default;
+
+        var moveDirectionForOtherColor = _colorToMove is Color.White ? Down : Up;
+        return move.To + moveDirectionForOtherColor;
+
     }
 
     private void HandleCastlingWhenMakingMove(Move move, Piece movedPiece)

@@ -190,7 +190,6 @@ public partial class Board
                             moves.Add(new Move(
                                 from: square,
                                 to: currentPosition,
-                                capturedPiece: pieceAtCurrentPosition,
                                 promotionTo: promoteTo));
                         }
 
@@ -200,8 +199,7 @@ public partial class Board
 
                 moves.Add(new Move(
                     from: square,
-                    to: currentPosition,
-                    capturedPiece: pieceAtCurrentPosition));
+                    to: currentPosition));
 
                 // Stop if the piece doesn't slide or we performed a capture
                 if (!PieceType.SlidingPieces.HasFlag(piece.Type) || moveIsCapture)
@@ -214,22 +212,22 @@ public partial class Board
                 if (currentPosition == Squares.D1 &&
                     piece.Color is Color.White &&
                     _castlingPrivileges.WhiteQueenSide)
-                    moves.Add(new Move(Squares.E1, Squares.C1, new Piece(PieceType.King, Color.White)));
+                    moves.Add(new Move(Squares.E1, Squares.C1));
 
                 if (currentPosition == Squares.F1 &&
                     piece.Color is Color.White &&
                     _castlingPrivileges.WhiteKingSide)
-                    moves.Add(new Move(Squares.E1, Squares.G1, new Piece(PieceType.King, Color.White)));
+                    moves.Add(new Move(Squares.E1, Squares.G1));
 
                 if (currentPosition == Squares.D8 &&
                     piece.Color is Color.Black &&
                     _castlingPrivileges.BlackQueenSide)
-                    moves.Add(new Move(Squares.E8, Squares.C8, new Piece(PieceType.King, Color.Black)));
+                    moves.Add(new Move(Squares.E8, Squares.C8));
 
                 if (currentPosition == Squares.F8 &&
                     piece.Color is Color.Black &&
                     _castlingPrivileges.BlackKingSide)
-                    moves.Add(new Move(Squares.E8, Squares.G8, new Piece(PieceType.King, Color.Black)));
+                    moves.Add(new Move(Squares.E8, Squares.G8));
             }
         }
 
