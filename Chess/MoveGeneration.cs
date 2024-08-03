@@ -106,7 +106,17 @@ public partial class Board
             AddPseudoLegalPieceMoves(piece, square, pseudoLegalMoves);
         }
 
-        return pseudoLegalMoves.Where(move => !MovesIntoCheck(move)).ToList();
+        var moves = new List<Move>(pseudoLegalMoves.Count);
+
+        foreach (var move in pseudoLegalMoves)
+        {
+            if (!MovesIntoCheck(move))
+            {
+                moves.Add(move);
+            }
+        }
+
+        return moves;
     }
 
     private bool MovesIntoCheck(Move move)
