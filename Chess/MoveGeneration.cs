@@ -5,10 +5,10 @@ namespace Chess;
 
 public partial class Board
 {
-    private static readonly Vector Up = new Vector(0, 1);
-    private static readonly Vector Down = new Vector(0, -1);
-    private static readonly Vector Left = new Vector(-1, 0);
-    private static readonly Vector Right = new Vector(1, 0);
+    private static readonly Vector Up = new (0, 1);
+    private static readonly Vector Down = new (0, -1);
+    private static readonly Vector Left = new (-1, 0);
+    private static readonly Vector Right = new (1, 0);
 
     private static readonly Vector[] WhitePawnMoveDirections = [Up, Up + Left, Up + Right, 2 * Up];
     private static readonly Vector[] BlackPawnMoveDirections = WhitePawnMoveDirections.Select(d => -1 * d).ToArray();

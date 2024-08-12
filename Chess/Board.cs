@@ -91,8 +91,8 @@ public partial class Board
 
     public Piece this[Square square]
     {
-        get => _pieces[square.X + (square.Y << 3)];
-        set => _pieces[square.X + (square.Y << 3)] = value;
+        get => _pieces[square.X + square.Y * 8];
+        set => _pieces[square.X + square.Y * 8] = value;
     }
 
     internal CastlingPrivileges CastlingPrivileges
