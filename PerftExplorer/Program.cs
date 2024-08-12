@@ -4,6 +4,8 @@ using Chess;
 using Chess.Builders;
 using Chess.Structs;
 
+namespace PerftExplorer;
+
 public static class Program
 {
     public static void Main(string[] args)
