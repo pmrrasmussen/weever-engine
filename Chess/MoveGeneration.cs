@@ -230,21 +230,25 @@ public partial class Board
                     continue;
 
                 if (currentPosition == Squares.D1 &&
+                    square == Squares.A1 &&
                     piece.HasFlag(Piece.White) &&
                     _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteQueenSide))
                     moves.Add(new Move(Squares.E1, Squares.C1));
 
                 if (currentPosition == Squares.F1 &&
+                    square == Squares.H1 &&
                     piece.HasFlag(Piece.White) &&
                     _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteKingSide))
                     moves.Add(new Move(Squares.E1, Squares.G1));
 
                 if (currentPosition == Squares.D8 &&
+                    square == Squares.A8 &&
                     piece.HasFlag(Piece.Black) &&
                     _castlingPrivileges.HasFlag(CastlingPrivileges.BlackQueenSide))
                     moves.Add(new Move(Squares.E8, Squares.C8));
 
                 if (currentPosition == Squares.F8 &&
+                    square == Squares.H8 &&
                     piece.HasFlag(Piece.Black) &&
                     _castlingPrivileges.HasFlag(CastlingPrivileges.BlackKingSide))
                     moves.Add(new Move(Squares.E8, Squares.G8));

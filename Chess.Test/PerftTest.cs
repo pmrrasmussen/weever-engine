@@ -765,9 +765,11 @@ public class PerftTest
     [InlineData("n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1", 6, 71179139)]
     [InlineData("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -", 1, 48)]
     [InlineData("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -", 2, 2039)]
+    // Additionals
+    [InlineData("4k2r/8/8/8/8/8/R2K4/5r1R b k - 4 3", 1, 29)]
     public void CheckFromFen(string fen, int depth, long expectedNodes)
     {
-        if (depth >= 5)
+        if (depth > 5)
             return;
 
         // Arrange
@@ -781,10 +783,13 @@ public class PerftTest
         Assert.Equal(expectedNodes, nodes);
     }
 
-    private static long GetNodeCount(Board board, int depth)
+    private long GetNodeCount(Board board, int depth)
     {
         if (depth == 0)
+        {
+            // _testOutputHelper.WriteLine(board.ToString());
             return 1;
+        }
 
         var moves = board.GetLegalMoves();
         long nodes = 0;
