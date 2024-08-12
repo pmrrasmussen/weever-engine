@@ -10,36 +10,33 @@ public class Program
 {
     public static void Main()
     {
-        long count = 0;
+        long nodes = 0;
         for (int i = 0; i < 10; i++)
         {
             var board = BoardBuilder.GetDefaultStartingPosition();
             var start = Stopwatch.GetTimestamp();
 
-            (_, count) = GetPossibleMovesCount(board, 5);
+            nodes = GetNodeCount(board, 5);
 
             Console.WriteLine(Stopwatch.GetElapsedTime(start));
         }
 
-        Console.WriteLine(count);
+        Console.WriteLine(nodes);
     }
-    private static (long, long) GetPossibleMovesCount(Board board, int toDepth)
+    private static long GetNodeCount(Board board, int depth)
     {
-        if (toDepth == 0)
-        {
-            return (0, 1);
-        }
+        if (depth == 0)
+            return 1;
 
         var moves = board.GetLegalMoves();
         long nodes = 0;
-        long captures = 0;
         foreach(var move in moves)
         {
             board.MakeMove(move);
-            var (cap, nod) = GetPossibleMovesCount(board, toDepth - 1);
+            nodes += GetNodeCount(board, depth - 1);
             board.UndoLastMove();
         }
 
-        return (captures, nodes);
+        return nodes;
     }
 }

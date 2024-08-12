@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace Chess.Structs;
 
 public readonly struct Square(int x, int y) : IEquatable<Square>

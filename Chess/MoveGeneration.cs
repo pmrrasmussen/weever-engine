@@ -1,4 +1,3 @@
-using System.Drawing;
 using Chess.Enums;
 using Chess.Structs;
 
@@ -6,6 +5,11 @@ namespace Chess;
 
 public partial class Board
 {
+    private static readonly Vector Up = new Vector(0, 1);
+    private static readonly Vector Down = new Vector(0, -1);
+    private static readonly Vector Left = new Vector(-1, 0);
+    private static readonly Vector Right = new Vector(1, 0);
+
     private static readonly Vector[] WhitePawnMoveDirections = [Up, Up + Left, Up + Right, 2 * Up];
     private static readonly Vector[] BlackPawnMoveDirections = WhitePawnMoveDirections.Select(d => -1 * d).ToArray();
     private static readonly Vector[] BishopMoveDirections = [Up + Left, Up + Right, Down + Left, Down + Right];
@@ -55,8 +59,10 @@ public partial class Board
             var directionLength = moveDirection.Length();
 
             var currentPosition = kingPosition;
+            var stepCount = 0;
             while ((currentPosition += moveDirection).IsWithinBoard())
             {
+                stepCount++;
                 var piece = this[currentPosition];
                 if (piece == Piece.None)
                 {
@@ -71,8 +77,8 @@ public partial class Board
 
                 switch (directionLength)
                 {
-                    case 1 when (piece & (Piece.Queen | Piece.Rook)) != 0:
-                    case 2 when (piece & (Piece.Queen | Piece.Bishop)) != 0:
+                    case 1 when (piece & (Piece.Queen | Piece.Rook)) != 0 || (piece.HasFlag(Piece.King) && stepCount == 1):
+                    case 2 when (piece & (Piece.Queen | Piece.Bishop)) != 0 || (piece.HasFlag(Piece.King) && stepCount == 1):
                     case 3 when piece.HasFlag(Piece.Knight):
                         return true;
                 }

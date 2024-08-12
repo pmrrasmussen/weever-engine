@@ -3,7 +3,7 @@ using Chess.Structs;
 
 namespace Chess.Builders;
 
-public class BoardBuilder
+public static class BoardBuilder
 {
     private const string StartingPositionFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -72,6 +72,7 @@ public class BoardBuilder
             'b' => Piece.BlackBishop,
             'n' => Piece.BlackKnight,
             'p' => Piece.BlackPawn,
+            _ => throw new ArgumentOutOfRangeException($"Unrecognised piece {piece}"),
         };
     }
 

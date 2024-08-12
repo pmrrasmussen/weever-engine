@@ -6,11 +6,6 @@ namespace Chess;
 
 public partial class Board
 {
-    private static readonly Vector Up = new Vector(0, 1);
-    private static readonly Vector Down = new Vector(0, -1);
-    private static readonly Vector Left = new Vector(-1, 0);
-    private static readonly Vector Right = new Vector(1, 0);
-
     private readonly Piece[] _pieces;
     private Stack<BoardMoveDelta> _moveHistory = new();
     private Piece _colorToMove = Piece.White;

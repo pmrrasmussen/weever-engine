@@ -8,6 +8,6 @@ if (!int.TryParse(args[0], out var depth))
 
 var fen = args[1];
 
-var moves = args[2..].Select(moveString => new Move(moveString));
+// var moves = args[2..].Select(moveString => new Move(moveString));
 
 var board = BoardBuilder.FromFen(fen);
