@@ -21,7 +21,17 @@ public readonly struct Move(
 
     public override string ToString()
     {
-        return $"{From}{To}";
+        var promotionString = PromotionTo switch
+        {
+            Piece.None                                 => "",
+            var piece when piece.HasFlag(Piece.Queen)  => "q",
+            var piece when piece.HasFlag(Piece.Rook)   => "r",
+            var piece when piece.HasFlag(Piece.Bishop) => "b",
+            var piece when piece.HasFlag(Piece.Knight) => "n",
+            _ => throw new ArgumentOutOfRangeException($"Invalid promotion type for move: {PromotionTo}")
+        };
+
+        return $"{From}{To}{promotionString}";
     }
 }
 

@@ -104,9 +104,8 @@ public static class BoardBuilder
 
     private static Square GetEnPassantAttackSquareFromFen(string fenEnPassantSquare)
     {
-        if (fenEnPassantSquare.Equals("-", StringComparison.OrdinalIgnoreCase))
-            return new Square();
-
-        return Square.FromString(fenEnPassantSquare);
+        return fenEnPassantSquare.Equals("-", StringComparison.OrdinalIgnoreCase)
+            ? Squares.NullSquare
+            : Square.FromString(fenEnPassantSquare);
     }
 }

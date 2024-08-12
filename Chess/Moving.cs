@@ -62,7 +62,7 @@ public partial class Board
 
     private void HandleUndoEnPassant(Move move, Piece movedPiece)
     {
-        if (!movedPiece.HasFlag(Piece.Pawn) || _enPassantAttackSquare == default)
+        if (!movedPiece.HasFlag(Piece.Pawn) || _enPassantAttackSquare == Squares.NullSquare)
             return;
 
         var moveDirectionForOtherColor = _colorToMove == Piece.White ? Down : Up;
@@ -95,7 +95,7 @@ public partial class Board
 
     private void HandleEnPassantCaptureWhenMakingMove(Move move, Piece movedPiece)
     {
-        if (!movedPiece.HasFlag(Piece.Pawn) || _enPassantAttackSquare == default)
+        if (!movedPiece.HasFlag(Piece.Pawn) || _enPassantAttackSquare == Squares.NullSquare)
             return;
 
         var moveDirectionForOtherColor = _colorToMove == Piece.White ? Down : Up;
@@ -106,11 +106,11 @@ public partial class Board
     private Square NewEnPassantSquareWhenMakingMove(Move move, Piece movedPiece)
     {
         if (!movedPiece.HasFlag(Piece.Pawn))
-            return default;
+            return Squares.NullSquare;
 
         var verticalMoveDelta = move.To.Y - move.From.Y;
         if (Math.Abs(verticalMoveDelta) != 2)
-            return default;
+            return Squares.NullSquare;
 
         var moveDirectionForOtherColor = _colorToMove == Piece.White ? Down : Up;
         return move.To + moveDirectionForOtherColor;

@@ -6,28 +6,12 @@ namespace Chess;
 
 public partial class Board
 {
-    private readonly Piece[] _pieces;
+    private readonly Piece[] _pieces = new Piece[64];
     private Stack<BoardMoveDelta> _moveHistory = new();
     private Piece _colorToMove = Piece.White;
-    private Square _enPassantAttackSquare;
-    private CastlingPrivileges _castlingPrivileges;
+    private Square _enPassantAttackSquare = Squares.NullSquare;
+    private CastlingPrivileges _castlingPrivileges = CastlingPrivileges.All;
     private Square[] _kingPositions = [ Squares.NullSquare, Squares.NullSquare ];
-
-    public Board()
-    {
-        _pieces = new Piece[64];
-        for (int x = 0; x < 8; x++)
-        {
-            for (int y = 0; y < 8; y++)
-            {
-                var square = new Square(x, y);
-                this[square] = Piece.None;
-            }
-        }
-
-        _enPassantAttackSquare = default;
-        _castlingPrivileges = CastlingPrivileges.All;
-    }
 
     public Board Clone()
     {
@@ -133,7 +117,7 @@ public partial class Board
             for (int x = 0; x < 8; x++)
             {
                 var square = new Square(x, y);
-                stringRepresentation.Append(PieceExtensions.PieceToString(this[square]));
+                stringRepresentation.Append(this[square].AsString());
             }
 
             stringRepresentation.Append('\n');

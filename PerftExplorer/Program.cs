@@ -1,6 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using Chess;
+﻿using Chess;
 using Chess.Builders;
 using Chess.Structs;
 

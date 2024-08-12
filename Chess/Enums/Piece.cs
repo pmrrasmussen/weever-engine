@@ -28,7 +28,7 @@ public enum Piece : byte
 
 public static class PieceExtensions
 {
-    public static string PieceToString(Piece piece)
+    public static string AsString(this Piece piece)
     {
         return piece switch
         {
