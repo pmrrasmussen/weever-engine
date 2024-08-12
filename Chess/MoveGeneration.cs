@@ -41,7 +41,7 @@ public partial class Board
 
     private bool IsCheck(Piece color)
     {
-        var kingIndex = color is Piece.White ? 0 : 1;
+        var kingIndex = color == Piece.White ? 0 : 1;
         var kingPosition = _kingPositions[kingIndex];
 
         var forwardsDirection = color.HasFlag(Piece.White) ? Up : Down;
@@ -58,7 +58,7 @@ public partial class Board
             while ((currentPosition += moveDirection).IsWithinBoard())
             {
                 var piece = this[currentPosition];
-                if (piece is Piece.None)
+                if (piece == Piece.None)
                 {
                     if (directionLength == 3)
                         break;
@@ -168,11 +168,11 @@ public partial class Board
                 var pieceAtCurrentPosition = this[currentPosition];
 
                 // Stop if we hit our own piece
-                if (pieceAtCurrentPosition is not Piece.None &&
+                if (pieceAtCurrentPosition != Piece.None &&
                     (byte)pieceAtCurrentPosition % 4 == (byte)piece % 4)
                     break;
 
-                var moveIsCapture = pieceAtCurrentPosition is not Piece.None;
+                var moveIsCapture = pieceAtCurrentPosition != Piece.None;
 
                 if (piece.HasFlag(Piece.Pawn))
                 {

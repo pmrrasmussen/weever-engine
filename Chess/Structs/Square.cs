@@ -13,6 +13,7 @@ public readonly struct Square(int x, int y) : IEquatable<Square>
 
     public static Vector operator -(Square a, Square b)
         => new (a.X - b.X, a.Y - b.Y);
+
     public override bool Equals(object? obj)
         => obj is Square other && Equals(other);
 

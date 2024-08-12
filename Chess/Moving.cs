@@ -20,17 +20,17 @@ public partial class Board
         SetCastlingPrivilegesWhenMakingMove(move, movedPiece);
         _enPassantAttackSquare = NewEnPassantSquareWhenMakingMove(move, movedPiece);
 
-        var pieceToPlace = move.PromotionTo is not Piece.None ? move.PromotionTo : movedPiece;
+        var pieceToPlace = move.PromotionTo !=  Piece.None ? move.PromotionTo : movedPiece;
         this[move.From] = Piece.None;
         this[move.To] = pieceToPlace;
 
         if (pieceToPlace.HasFlag(Piece.King))
         {
-            var kingIndex = _colorToMove is Piece.White ? 0 : 1;
+            var kingIndex = _colorToMove == Piece.White ? 0 : 1;
             _kingPositions[kingIndex] = move.To;
         }
 
-        _colorToMove = _colorToMove is Piece.White ? Piece.Black : Piece.White;
+        _colorToMove = _colorToMove == Piece.White ? Piece.Black : Piece.White;
     }
 
     public void UndoLastMove()
@@ -41,21 +41,21 @@ public partial class Board
 
         _castlingPrivileges = moveDelta.CastlingPrivileges;
         _enPassantAttackSquare = moveDelta.EnPassantAttackSquare;
-        _colorToMove = _colorToMove is Piece.White ? Piece.Black : Piece.White;
+        _colorToMove = _colorToMove == Piece.White ? Piece.Black : Piece.White;
 
         var lastMove = moveDelta.Move;
 
         HandleUndoEnPassant(lastMove, movedPiece);
         HandleUndoCastling(lastMove, movedPiece);
 
-        this[lastMove.From] = moveDelta.Move.PromotionTo is Piece.None
+        this[lastMove.From] = moveDelta.Move.PromotionTo == Piece.None
             ? movedPiece
             : Piece.Pawn | _colorToMove;
         this[lastMove.To] = moveDelta.DirectlyCapturedPiece;
 
         if (movedPiece.HasFlag(Piece.King))
         {
-            var kingIndex = _colorToMove is Piece.White ? 0 : 1;
+            var kingIndex = _colorToMove == Piece.White ? 0 : 1;
             _kingPositions[kingIndex] = lastMove.From;
         }
     }
@@ -65,11 +65,11 @@ public partial class Board
         if (!movedPiece.HasFlag(Piece.Pawn) || _enPassantAttackSquare == default)
             return;
 
-        var moveDirectionForOtherColor = _colorToMove is Piece.White ? Down : Up;
+        var moveDirectionForOtherColor = _colorToMove == Piece.White ? Down : Up;
 
         if (move.To == _enPassantAttackSquare)
         {
-            var otherColor = _colorToMove is Piece.White ? Piece.Black : Piece.White;
+            var otherColor = _colorToMove == Piece.White ? Piece.Black : Piece.White;
             this[_enPassantAttackSquare + moveDirectionForOtherColor] = Piece.Pawn | otherColor;
         }
 
@@ -98,7 +98,7 @@ public partial class Board
         if (!movedPiece.HasFlag(Piece.Pawn) || _enPassantAttackSquare == default)
             return;
 
-        var moveDirectionForOtherColor = _colorToMove is Piece.White ? Down : Up;
+        var moveDirectionForOtherColor = _colorToMove == Piece.White ? Down : Up;
         if (move.To == _enPassantAttackSquare)
             this[_enPassantAttackSquare + moveDirectionForOtherColor] = Piece.None;
     }
@@ -112,7 +112,7 @@ public partial class Board
         if (Math.Abs(verticalMoveDelta) != 2)
             return default;
 
-        var moveDirectionForOtherColor = _colorToMove is Piece.White ? Down : Up;
+        var moveDirectionForOtherColor = _colorToMove == Piece.White ? Down : Up;
         return move.To + moveDirectionForOtherColor;
 
     }
@@ -147,7 +147,7 @@ public partial class Board
 
         if (movedPiece.HasFlag(Piece.King))
         {
-            if (_colorToMove is Piece.White)
+            if (_colorToMove == Piece.White)
                 (whiteKingSide, whiteQueenSide) = (false, false);
             else
                 (blackKingSide, blackQueenSide) = (false, false);
