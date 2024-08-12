@@ -1,4 +1,4 @@
 ﻿using BenchmarkDotNet.Running;
 using Benchmarks;
 
-var summary = BenchmarkRunner.Run<Perft>();
+var summary = BenchmarkRunner.Run<PieceBenchmark>();
