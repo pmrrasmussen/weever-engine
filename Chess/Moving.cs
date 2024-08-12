@@ -137,27 +137,24 @@ public partial class Board
 
     private void SetCastlingPrivilegesWhenMakingMove(Move move, Piece movedPiece)
     {
-        var (whiteKingSide, whiteQueenSide, blackKingSide, blackQueenSide) =
-            (
-                _castlingPrivileges.WhiteKingSide,
-                _castlingPrivileges.WhiteQueenSide,
-                _castlingPrivileges.BlackKingSide,
-                _castlingPrivileges.BlackQueenSide
-            );
-
         if (movedPiece.HasFlag(Piece.King))
         {
             if (_colorToMove == Piece.White)
-                (whiteKingSide, whiteQueenSide) = (false, false);
+                _castlingPrivileges &= CastlingPrivileges.Black;
             else
-                (blackKingSide, blackQueenSide) = (false, false);
+                _castlingPrivileges &= CastlingPrivileges.White;
         }
 
-        whiteQueenSide &= move.From != Squares.A1 && move.To != Squares.A1;
-        whiteKingSide &= move.From != Squares.H1 && move.To != Squares.H1;
-        blackQueenSide &= move.From != Squares.A8 && move.To != Squares.A8;
-        blackKingSide &= move.From != Squares.H8 && move.To != Squares.H8;
+        if (move.From == Squares.A1 || move.To == Squares.A1)
+            _castlingPrivileges &= CastlingPrivileges.Black | CastlingPrivileges.WhiteKingSide;
 
-        _castlingPrivileges = new (whiteKingSide, whiteQueenSide, blackKingSide, blackQueenSide);
+        if (move.From == Squares.H1 || move.To == Squares.H1)
+            _castlingPrivileges &= CastlingPrivileges.Black | CastlingPrivileges.WhiteQueenSide;
+
+        if (move.From == Squares.A8 || move.To == Squares.A8)
+            _castlingPrivileges &= CastlingPrivileges.White | CastlingPrivileges.BlackKingSide;
+
+        if (move.From == Squares.H8 || move.To == Squares.H8)
+            _castlingPrivileges &= CastlingPrivileges.White | CastlingPrivileges.BlackQueenSide;
     }
 }

@@ -85,11 +85,21 @@ public static class BoardBuilder
 
     private static CastlingPrivileges GetCastlingPrivilegesFromFen(string fenCastlingPrivileges)
     {
-        return new CastlingPrivileges(
-            whiteKingSide: fenCastlingPrivileges.Contains('K'),
-            whiteQueenSide: fenCastlingPrivileges.Contains('Q'),
-            blackKingSide: fenCastlingPrivileges.Contains('k'),
-            blackQueenSide: fenCastlingPrivileges.Contains('q'));
+        var castlingPrivileges = CastlingPrivileges.None;
+
+        if (fenCastlingPrivileges.Contains('K'))
+            castlingPrivileges |= CastlingPrivileges.WhiteKingSide;
+
+        if (fenCastlingPrivileges.Contains('Q'))
+            castlingPrivileges |= CastlingPrivileges.WhiteQueenSide;
+
+        if (fenCastlingPrivileges.Contains('k'))
+            castlingPrivileges |= CastlingPrivileges.BlackKingSide;
+
+        if (fenCastlingPrivileges.Contains('q'))
+            castlingPrivileges |= CastlingPrivileges.BlackQueenSide;
+
+        return castlingPrivileges;
     }
 
     private static Square GetEnPassantAttackSquareFromFen(string fenEnPassantSquare)

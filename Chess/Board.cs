@@ -26,7 +26,7 @@ public partial class Board
         }
 
         _enPassantAttackSquare = default;
-        _castlingPrivileges = new(true, true, true, true);
+        _castlingPrivileges = CastlingPrivileges.All;
     }
 
     public Board Clone()
