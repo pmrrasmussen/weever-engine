@@ -95,6 +95,30 @@ public static class SquareExtensions
     {
         return square is { X: >= 0 and < 8, Y: >= 0 and < 8 };
     }
+
+    public static Square ToSquare(this string square)
+    {
+        if (square.Length != 2)
+            throw new ArgumentOutOfRangeException($"Unknown square {square}");
+
+        var x = square[0] switch
+        {
+            'A' or 'a' => 0,
+            'B' or 'b' => 1,
+            'C' or 'c' => 2,
+            'D' or 'd' => 3,
+            'E' or 'e' => 4,
+            'F' or 'f' => 5,
+            'G' or 'g' => 6,
+            'H' or 'h' => 7,
+            _ => throw new ArgumentOutOfRangeException($"Unknown square {square}"),
+        };
+
+        if (!int.TryParse(square[1].ToString(), out var y) && y is > 0 and < 9)
+            throw new ArgumentOutOfRangeException($"Unknown square {square}");
+
+        return new Square(x, y - 1);
+    }
 }
 
 public static class Squares

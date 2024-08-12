@@ -48,4 +48,16 @@ public static class PieceExtensions
             _ => throw new ArgumentOutOfRangeException(),
         };
     }
+
+    public static Piece ToPiece(this char piece)
+    {
+        return piece switch
+        {
+            'Q' or 'q' => Piece.Queen,
+            'R' or 'r' => Piece.Rook,
+            'B' or 'b' => Piece.Bishop,
+            'N' or 'n' => Piece.Knight,
+            _ => throw new ArgumentOutOfRangeException(),
+        };
+    }
 }
