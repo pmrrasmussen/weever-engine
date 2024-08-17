@@ -45,8 +45,8 @@ public partial class Board
 
     private bool IsCheck(Piece color)
     {
-        var (kingIndex, forwardsDirection) = color is Piece.White ? (0, Up) : (1, Down);
-        var kingPosition = _kingPositions[kingIndex];
+        var forwardsDirection = color is Piece.White ? Up : Down;
+        var kingPosition = _kingPositions[color.KingPositionIndex()];
 
         if (IsOppositeColouredPawn(color, kingPosition + forwardsDirection + Right) ||
             IsOppositeColouredPawn(color, kingPosition + forwardsDirection + Left))
@@ -117,16 +117,43 @@ public partial class Board
         }
 
         var moves = new List<Move>(pseudoLegalMoves.Count);
+        var fromSquaresToWatch = FromSquaresToWatchForChecks();
+        var isCheck = IsCheck(_colorToMove);
 
         foreach (var move in pseudoLegalMoves)
         {
-            if (!MovesIntoCheck(move))
-            {
-                moves.Add(move);
-            }
+            if ((isCheck ||
+                fromSquaresToWatch.Contains(move.From) ||
+                move.To == _enPassantAttackSquare) &&
+                MovesIntoCheck(move))
+                continue;
+            moves.Add(move);
         }
 
         return moves;
+    }
+
+    private Square[] FromSquaresToWatchForChecks()
+    {
+        var kingSquare = _kingPositions[_colorToMove.KingPositionIndex()];
+        List<Square> watchSquares = [ kingSquare ];
+
+        foreach (var direction in QueenMoveDirections)
+        {
+            var currentSquare = kingSquare;
+            var piece = Piece.None;
+            while ((currentSquare += direction).IsWithinBoard() && (piece = this[currentSquare]) == Piece.None)
+            {
+
+            }
+
+            if (piece.HasFlag(_colorToMove))
+            {
+                watchSquares.Add(currentSquare);
+            }
+        }
+
+        return watchSquares.ToArray();
     }
 
     private bool MovesIntoCheck(Move move)
