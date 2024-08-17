@@ -133,7 +133,7 @@ public partial class Board
         return moves;
     }
 
-    private Square[] FromSquaresToWatchForChecks()
+    private List<Square> FromSquaresToWatchForChecks()
     {
         var kingSquare = _kingPositions[_colorToMove.KingPositionIndex()];
         List<Square> watchSquares = [ kingSquare ];
@@ -144,7 +144,6 @@ public partial class Board
             var piece = Piece.None;
             while ((currentSquare += direction).IsWithinBoard() && (piece = this[currentSquare]) == Piece.None)
             {
-
             }
 
             if (piece.HasFlag(_colorToMove))
@@ -153,7 +152,7 @@ public partial class Board
             }
         }
 
-        return watchSquares.ToArray();
+        return watchSquares;
     }
 
     private bool MovesIntoCheck(Move move)
