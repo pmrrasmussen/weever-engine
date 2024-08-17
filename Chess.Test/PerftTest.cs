@@ -1,5 +1,6 @@
 using Chess.Builders;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Chess.Test;
 

@@ -23,11 +23,11 @@ public readonly struct Move(
     {
         var promotionString = PromotionTo switch
         {
-            Piece.None                                 => "",
-            var piece when piece.HasFlag(Piece.Queen)  => "q",
-            var piece when piece.HasFlag(Piece.Rook)   => "r",
-            var piece when piece.HasFlag(Piece.Bishop) => "b",
-            var piece when piece.HasFlag(Piece.Knight) => "n",
+            Piece.None                                               => "",
+            var piece when (piece & Piece.TypeMask) == Piece.Queen  => "q",
+            var piece when (piece & Piece.TypeMask) == Piece.Rook   => "r",
+            var piece when (piece & Piece.TypeMask) == Piece.Bishop => "b",
+            var piece when (piece & Piece.TypeMask) == Piece.Knight => "n",
             _ => throw new ArgumentOutOfRangeException($"Invalid promotion type for move: {PromotionTo}")
         };
 

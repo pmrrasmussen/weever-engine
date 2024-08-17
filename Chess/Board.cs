@@ -6,7 +6,7 @@ namespace Chess;
 
 public partial class Board
 {
-    private readonly Piece[] _pieces = new Piece[64];
+    private readonly Piece[] _pieces = Enumerable.Repeat(Piece.None, 64).ToArray();
     private Stack<BoardMoveDelta> _moveHistory = new();
     private Piece _colorToMove = Piece.White;
     private Square _enPassantAttackSquare = Squares.NullSquare;
@@ -101,7 +101,7 @@ public partial class Board
     {
         foreach (var square in Squares.All)
         {
-            if (!this[square].HasFlag(Piece.King))
+            if ((this[square] & Piece.TypeMask) is not Piece.King)
                 continue;
 
             var kingIndex = this[square].HasFlag(Piece.White) ? 0 : 1;

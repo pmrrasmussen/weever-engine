@@ -1,17 +1,17 @@
 namespace Chess.Enums;
 
 [Flags]
-public enum Piece : byte
+public enum Piece
 {
-    None   = 0,
-    White  = 1 << 0,
-    Black  = 1 << 1,
-    Pawn   = 1 << 2,
-    Knight = 1 << 3,
-    Bishop = 1 << 4,
-    Rook   = 1 << 5,
-    Queen  = 1 << 6,
-    King   = 1 << 7,
+    Pawn   = 0,
+    Knight = 1,
+    Bishop = 2,
+    Rook   = 3,
+    Queen  = 4,
+    King   = 5,
+    None   = 6,
+    White  = 1 << 3,
+    Black  = 1 << 4,
     BlackKing   = Black | King,
     BlackQueen  = Black | Queen,
     BlackRook   = Black | Rook,
@@ -24,6 +24,8 @@ public enum Piece : byte
     WhiteRook   = White | Rook,
     WhiteQueen  = White | Queen,
     WhiteKing   = White | King,
+    TypeMask = 7,
+    ColorMask = 3 << 3,
 }
 
 public static class PieceExtensions
@@ -45,7 +47,7 @@ public static class PieceExtensions
             Piece.WhitePawn => "\u2659",
             Piece.BlackPawn => "\u265f",
             Piece.None => "\u00B7",
-            _ => throw new ArgumentOutOfRangeException(),
+            _ => throw new ArgumentOutOfRangeException($"Unknown piece {piece}"),
         };
     }
 
