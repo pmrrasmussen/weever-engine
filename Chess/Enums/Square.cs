@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace Chess.Enums;
 
 // We use a classic 10x12 mailbox board representation
@@ -18,6 +20,9 @@ public enum Square
 
 public static class SquareExtensions
 {
+    public static int Rank(this Square square)
+        => (int)square / 10;
+
     public static Square ToSquare(this string square)
     {
         if (square.Length != 2)

@@ -83,7 +83,7 @@ public partial class Board
 
         var horizontalMoveDelta = (move.To - move.From) % 10;
 
-        var originalRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * ((int)move.From / 10);
+        var originalRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.Rank();
         var currentRookPosition = move.From + horizontalMoveDelta / 2;
 
         this[originalRookPosition] = this[currentRookPosition];
@@ -120,7 +120,7 @@ public partial class Board
 
         var horizontalMoveDelta = move.To - move.From;
 
-        var currentRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * ((int)move.From / 10);
+        var currentRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.Rank();
         var newRookPosition = move.From + horizontalMoveDelta / 2;
 
         this[newRookPosition] = this[currentRookPosition];

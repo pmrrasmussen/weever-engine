@@ -16,6 +16,9 @@ public partial class Board
     private static readonly MoveDirectionType[] MoveDirectionTypes =
         [MoveDirectionType.Straight, MoveDirectionType.Diagonal, MoveDirectionType.Knight];
 
+    private const int WhiteBackRank = 2;
+    private const int BlackBackRank = 9;
+
     private const int Up = 10;
     private const int Down = -Up;
     private const int Left = -1;
@@ -231,10 +234,10 @@ public partial class Board
                         break;
 
                     // Two-square moves from non-starting position
-                    if (direction == 20 && ((int)square / 10 != 3 || this[square+Up] != Piece.Empty || moveIsCapture))
+                    if (direction == 20 && (square.Rank() != WhiteBackRank + 1 || this[square+Up] != Piece.Empty || moveIsCapture))
                         break;
 
-                    if (direction == -20 && ((int)square / 10 != 8 || this[square+Down] != Piece.Empty || moveIsCapture))
+                    if (direction == -20 && (square.Rank() != BlackBackRank - 1 || this[square+Down] != Piece.Empty || moveIsCapture))
                         break;
 
                     // Capturing forward
@@ -242,7 +245,7 @@ public partial class Board
                         break;
 
                     // Promotion
-                    if ((int)currentPosition / 10 is 2 or 9)
+                    if (currentPosition.Rank() is WhiteBackRank or BlackBackRank)
                     {
                         foreach (var promotionPieceType in PromotionPieceTypes)
                         {
@@ -267,7 +270,7 @@ public partial class Board
                     break;
 
                 // Add castling moves when a rook slides next to the king
-                if (pieceType is not Piece.Rook || ((int)currentPosition / 10) is not (2 or 9))
+                if (pieceType is not Piece.Rook || currentPosition.Rank() is not (WhiteBackRank or BlackBackRank))
                     continue;
 
                 switch (currentPosition, square, pieceColor)
