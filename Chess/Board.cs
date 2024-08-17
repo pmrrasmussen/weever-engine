@@ -24,29 +24,17 @@ public partial class Board
             _moveHistory = new(_moveHistory.Reverse())
         };
 
-        for (var x = 0; x < 8; x++)
-        {
-            for (var y = 0; y < 8; y++)
-            {
-                var square = new Square(x, y);
+        foreach (var square in Squares.All)
                 newBoard[square] = this[square];
-            }
-        }
 
         return newBoard;
     }
 
     public bool Equals(Board otherBoard)
     {
-        for (int x = 0; x < 8; x++)
-        {
-            for (int y = 0; y < 8; y++)
-            {
-                var square = new Square(x, y);
-                if (!(otherBoard[square].Equals(this[square])))
-                    return false;
-            }
-        }
+        foreach (var square in Squares.All)
+            if (!(otherBoard[square].Equals(this[square])))
+                return false;
 
         return otherBoard._colorToMove == _colorToMove &&
                otherBoard._kingPositions.SequenceEqual(_kingPositions) &&
@@ -57,15 +45,9 @@ public partial class Board
 
     public bool HistoryAgnosticEquals(Board otherBoard)
     {
-        for (int x = 0; x < 8; x++)
-        {
-            for (int y = 0; y < 8; y++)
-            {
-                var square = new Square(x, y);
+        foreach (var square in Squares.All)
                 if (!(otherBoard[square].Equals(this[square])))
                     return false;
-            }
-        }
 
         return otherBoard._colorToMove == _colorToMove &&
                otherBoard._kingPositions.SequenceEqual(_kingPositions) &&

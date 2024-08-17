@@ -26,6 +26,7 @@ public enum Piece
     WhiteKing   = White | King,
     TypeMask = 7,
     ColorMask = 3 << 3,
+    OutOfBounds = 1 << 5,
 }
 
 public static class PieceExtensions

@@ -147,9 +147,7 @@ public partial class Board
             }
 
             if (piece.HasFlag(_colorToMove))
-            {
                 watchSquares.Add(currentSquare);
-            }
         }
 
         return watchSquares;
