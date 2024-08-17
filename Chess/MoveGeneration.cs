@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Chess.Enums;
 using Chess.Structs;
 
@@ -116,8 +117,7 @@ public partial class Board
 
     private bool IsOppositeColouredPawn(Piece color, Square square)
     {
-        var piece = this[square];
-        return (piece | color) == (Piece.Pawn | Piece.ColorMask);
+        return (this[square] | color) == (Piece.Pawn | Piece.ColorMask);
     }
 
     public List<Move> GetLegalMoves()
