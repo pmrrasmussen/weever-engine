@@ -30,7 +30,7 @@ public partial class Board
             _kingPositions[_colorToMove.KingPositionIndex()] = move.To;
         }
 
-        _colorToMove = _colorToMove == Piece.White ? Piece.Black : Piece.White;
+        _colorToMove ^= Piece.ColorMask;
     }
 
     public void UndoLastMove()
@@ -42,7 +42,7 @@ public partial class Board
 
         _castlingPrivileges = moveDelta.CastlingPrivileges;
         _enPassantAttackSquare = moveDelta.EnPassantAttackSquare;
-        _colorToMove = _colorToMove == Piece.White ? Piece.Black : Piece.White;
+        _colorToMove ^= Piece.ColorMask;
 
         var lastMove = moveDelta.Move;
 
@@ -54,7 +54,7 @@ public partial class Board
             : Piece.Pawn | _colorToMove;
         this[lastMove.To] = moveDelta.DirectlyCapturedPiece;
 
-        if (movedPieceType is Piece.King)
+        if (movedPieceType == Piece.King)
         {
             _kingPositions[_colorToMove.KingPositionIndex()] = lastMove.From;
         }
@@ -69,7 +69,7 @@ public partial class Board
 
         if (move.To == _enPassantAttackSquare)
         {
-            var otherColor = _colorToMove == Piece.White ? Piece.Black : Piece.White;
+            var otherColor = _colorToMove ^ Piece.ColorMask;
             this[_enPassantAttackSquare + moveDirectionForOtherColor] = Piece.Pawn | otherColor;
         }
 
@@ -81,10 +81,10 @@ public partial class Board
             Math.Abs(move.From-move.To) != 2)
             return;
 
-        var horizontalMoveDelta = (move.To - move.From) % 10;
+        var horizontalMoveDelta = move.To - move.From;
 
         var originalRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.Rank();
-        var currentRookPosition = move.From + horizontalMoveDelta / 2;
+        var currentRookPosition = (Square)(((int)move.To + (int)move.From) / 2);
 
         this[originalRookPosition] = this[currentRookPosition];
         this[currentRookPosition] = Piece.Empty;
@@ -102,15 +102,9 @@ public partial class Board
 
     private Square NewEnPassantSquareWhenMakingMove(Move move, Piece movedPieceType)
     {
-        if (movedPieceType != Piece.Pawn)
-            return Square.NullSquare;
-
-        if (Math.Abs(move.To - move.From) != 20)
-            return Square.NullSquare;
-
-        var moveDirectionForOtherColor = _colorToMove == Piece.White ? Down : Up;
-        return move.To + moveDirectionForOtherColor;
-
+        return movedPieceType == Piece.Pawn && Math.Abs(move.To - move.From) == 20
+            ? (Square)(((int)move.To + (int)move.From) / 2)
+            : Square.NullSquare;
     }
 
     private void HandleCastlingWhenMakingMove(Move move, Piece movedPieceType)
@@ -121,7 +115,7 @@ public partial class Board
         var horizontalMoveDelta = move.To - move.From;
 
         var currentRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.Rank();
-        var newRookPosition = move.From + horizontalMoveDelta / 2;
+        var newRookPosition = (Square)(((int)move.To + (int)move.From) / 2);
 
         this[newRookPosition] = this[currentRookPosition];
         this[currentRookPosition] = Piece.Empty;

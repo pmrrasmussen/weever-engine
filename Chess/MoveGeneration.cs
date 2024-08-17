@@ -54,9 +54,7 @@ public partial class Board
         BishopMoveDirections,
         KnightMoveDirections,
     ];
-
-        // QueenMoveDirections.Concat(KnightMoveDirections).ToArray();
-
+    
     private static readonly Piece[] PromotionPieceTypes =
     [
         Piece.Bishop,
