@@ -13,7 +13,7 @@ public class Perft
         _board = BoardBuilder.GetDefaultStartingPosition();
     }
 
-    [Params(9)]
+    [Params(5)]
     public int Depth { get; set; }
 
     [Benchmark]
