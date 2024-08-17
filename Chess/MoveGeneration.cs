@@ -158,7 +158,7 @@ public partial class Board
         foreach (var direction in QueenMoveDirections)
         {
             var currentSquare = kingSquare;
-            var piece = Piece.Empty;
+            Piece piece;
             while ((piece = this[currentSquare += direction]) == Piece.Empty)
             {
             }
@@ -183,9 +183,7 @@ public partial class Board
             if (IsCheck(currentColor))
                 return true;
 
-            var inBetweenSquare = move.To - move.From < 0
-                ? move.To + Right
-                : move.To + Left;
+            var inBetweenSquare = (Square)(((int)move.To + (int)move.From) / 2);
             var inBetweenMove = new Move(
                 from: move.From,
                 to: inBetweenSquare);
