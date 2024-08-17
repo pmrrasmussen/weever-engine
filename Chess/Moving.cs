@@ -62,7 +62,7 @@ public partial class Board
 
     private void HandleUndoEnPassant(Move move, Piece movedPieceType)
     {
-        if (movedPieceType != Piece.Pawn || _enPassantAttackSquare == Square.NullSquare)
+        if (movedPieceType != Piece.Pawn)
             return;
 
         var moveDirectionForOtherColor = _colorToMove == Piece.White ? Down : Up;
@@ -92,7 +92,7 @@ public partial class Board
 
     private void HandleEnPassantCaptureWhenMakingMove(Move move, Piece movedPieceType)
     {
-        if (movedPieceType != Piece.Pawn || _enPassantAttackSquare == Square.NullSquare)
+        if (movedPieceType != Piece.Pawn)
             return;
 
         var moveDirectionForOtherColor = _colorToMove == Piece.White ? Down : Up;
