@@ -270,29 +270,21 @@ public partial class Board
                 if (pieceType is not Piece.Rook || ((int)currentPosition / 10) is not (2 or 9))
                     continue;
 
-                if (currentPosition == Square.D1 &&
-                    square == Square.A1 &&
-                    pieceColor is Piece.White &&
-                    _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteQueenSide))
-                    moves.Add(new Move(Square.E1, Square.C1));
-
-                if (currentPosition == Square.F1 &&
-                    square == Square.H1 &&
-                    pieceColor is Piece.White &&
-                    _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteKingSide))
-                    moves.Add(new Move(Square.E1, Square.G1));
-
-                if (currentPosition == Square.D8 &&
-                    square == Square.A8 &&
-                    pieceColor is Piece.Black &&
-                    _castlingPrivileges.HasFlag(CastlingPrivileges.BlackQueenSide))
-                    moves.Add(new Move(Square.E8, Square.C8));
-
-                if (currentPosition == Square.F8 &&
-                    square == Square.H8 &&
-                    pieceColor is Piece.Black &&
-                    _castlingPrivileges.HasFlag(CastlingPrivileges.BlackKingSide))
-                    moves.Add(new Move(Square.E8, Square.G8));
+                switch (currentPosition, square, pieceColor)
+                {
+                    case (Square.D1, Square.A1, Piece.White) when _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteQueenSide):
+                        moves.Add(new Move(Square.E1, Square.C1));
+                        break;
+                    case (Square.F1, Square.H1, Piece.White) when _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteKingSide):
+                        moves.Add(new Move(Square.E1, Square.G1));
+                        break;
+                    case (Square.D8, Square.A8, Piece.Black) when _castlingPrivileges.HasFlag(CastlingPrivileges.BlackQueenSide):
+                        moves.Add(new Move(Square.E8, Square.C8));
+                        break;
+                    case (Square.F8, Square.H8, Piece.Black) when _castlingPrivileges.HasFlag(CastlingPrivileges.BlackKingSide):
+                        moves.Add(new Move(Square.E8, Square.G8));
+                        break;
+                }
             }
         }
     }
