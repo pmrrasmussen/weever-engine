@@ -104,8 +104,7 @@ public partial class Board
             if ((this[square] & Piece.TypeMask) is not Piece.King)
                 continue;
 
-            var kingIndex = this[square].HasFlag(Piece.White) ? 0 : 1;
-            _kingPositions[kingIndex] = square;
+            _kingPositions[this[square].KingPositionIndex()] = square;
         }
     }
 

@@ -27,8 +27,7 @@ public partial class Board
 
         if (movedPieceType is Piece.King)
         {
-            var kingIndex = _colorToMove == Piece.White ? 0 : 1;
-            _kingPositions[kingIndex] = move.To;
+            _kingPositions[_colorToMove.KingPositionIndex()] = move.To;
         }
 
         _colorToMove = _colorToMove == Piece.White ? Piece.Black : Piece.White;
@@ -57,8 +56,7 @@ public partial class Board
 
         if (movedPieceType is Piece.King)
         {
-            var kingIndex = _colorToMove == Piece.White ? 0 : 1;
-            _kingPositions[kingIndex] = lastMove.From;
+            _kingPositions[_colorToMove.KingPositionIndex()] = lastMove.From;
         }
     }
 

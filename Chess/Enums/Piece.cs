@@ -30,6 +30,9 @@ public enum Piece
 
 public static class PieceExtensions
 {
+    public static int KingPositionIndex(this Piece color)
+        => (int)color >> 4;
+
     public static string AsString(this Piece piece)
     {
         return piece switch
