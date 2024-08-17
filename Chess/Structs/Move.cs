@@ -5,7 +5,7 @@ namespace Chess.Structs;
 public readonly struct Move(
     Square from,
     Square to,
-    Piece promotionTo = Piece.None)
+    Piece promotionTo = Piece.Empty)
 {
     public readonly Square From = from;
 
@@ -13,17 +13,11 @@ public readonly struct Move(
 
     public readonly Piece PromotionTo = promotionTo;
 
-    public int Length()
-    {
-        var moveDelta = To - From;
-        return moveDelta.Length();
-    }
-
     public override string ToString()
     {
         var promotionString = PromotionTo switch
         {
-            Piece.None                                               => "",
+            Piece.Empty                                               => "",
             var piece when (piece & Piece.TypeMask) == Piece.Queen  => "q",
             var piece when (piece & Piece.TypeMask) == Piece.Rook   => "r",
             var piece when (piece & Piece.TypeMask) == Piece.Bishop => "b",
@@ -49,7 +43,7 @@ public static class MoveExtensions
             return new Move(fromSquare, toSquare);
 
         var promotionPiece = move[5].ToPiece();
-        promotionPiece |= toSquare.Y == 1 ? Piece.White : Piece.Black;
+        promotionPiece |= (int)toSquare/20 == 2 ? Piece.White : Piece.Black;
 
         return new Move(fromSquare, toSquare, promotionPiece);
     }

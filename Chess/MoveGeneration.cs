@@ -5,15 +5,25 @@ namespace Chess;
 
 public partial class Board
 {
-    private static readonly Vector Up = new (0, 1);
-    private static readonly Vector Down = new (0, -1);
-    private static readonly Vector Left = new (-1, 0);
-    private static readonly Vector Right = new (1, 0);
+    private enum MoveDirectionType
+    {
+        Straight = 0,
+        Diagonal = 1,
+        Knight = 2,
+    }
 
-    private static readonly Vector[] WhitePawnMoveDirections = [Up, Up + Left, Up + Right, 2 * Up];
-    private static readonly Vector[] BlackPawnMoveDirections = WhitePawnMoveDirections.Select(d => -1 * d).ToArray();
-    private static readonly Vector[] BishopMoveDirections = [Up + Left, Up + Right, Down + Left, Down + Right];
-    private static readonly Vector[] KnightMoveDirections =
+    private static readonly MoveDirectionType[] MoveDirectionTypes =
+        [MoveDirectionType.Straight, MoveDirectionType.Diagonal, MoveDirectionType.Knight];
+
+    private const int Up = 10;
+    private const int Down = -Up;
+    private const int Left = -1;
+    private const int Right = -Left;
+
+    private static readonly int[] WhitePawnMoveDirections = [Up, Up + Left, Up + Right, 2 * Up];
+    private static readonly int[] BlackPawnMoveDirections = WhitePawnMoveDirections.Select(d => -1 * d).ToArray();
+    private static readonly int[] BishopMoveDirections = [Up + Left, Up + Right, Down + Left, Down + Right];
+    private static readonly int[] KnightMoveDirections =
     [
         Up + 2 * Left,
         2 * Up + Left,
@@ -24,16 +34,24 @@ public partial class Board
         2 * Down + Left,
         Down + 2 * Left,
     ];
-    private static readonly Vector[] RookMoveDirections = [Up, Left, Right, Down];
-    private static readonly Vector[] QueenMoveDirections =
+    private static readonly int[] RookMoveDirections = [Up, Left, Right, Down];
+    private static readonly int[] QueenMoveDirections =
     [
         Up, Left, Right, Down, Up + Left, Up + Right, Down + Left, Down + Right
     ];
-    private static readonly Vector[] KingMoveDirections =
+    private static readonly int[] KingMoveDirections =
     [
         Up, Left, Right, Down, Up + Left, Up + Right, Down + Left, Down + Right
     ];
-    private static readonly Vector[] AllMoveDirections = QueenMoveDirections.Concat(KnightMoveDirections).ToArray();
+
+    private static readonly int[][] AllMoveDirections =
+    [
+        RookMoveDirections,
+        BishopMoveDirections,
+        KnightMoveDirections,
+    ];
+
+        // QueenMoveDirections.Concat(KnightMoveDirections).ToArray();
 
     private static readonly Piece[] PromotionPieceTypes =
     [
@@ -52,42 +70,44 @@ public partial class Board
             IsOppositeColouredPawn(color, kingPosition + forwardsDirection + Left))
             return true;
 
-        foreach (var moveDirection in AllMoveDirections)
+        foreach (var moveDirectionType in MoveDirectionTypes)
         {
-            var directionLength = moveDirection.Length();
-
-            var currentPosition = kingPosition;
-            var stepCount = 0;
-            while ((currentPosition += moveDirection).IsWithinBoard())
+            foreach (var moveDirection in AllMoveDirections[(int)moveDirectionType])
             {
-                stepCount++;
-                var piece = this[currentPosition];
-                if (piece == Piece.None)
+                var currentPosition = kingPosition;
+                var stepCount = 0;
+                Piece piece;
+                while ((piece = this[currentPosition += moveDirection]) != Piece.OutOfBounds)
                 {
-                    if (directionLength == 3)
+                    stepCount++;
+                    if (piece == Piece.Empty)
+                    {
+                        if (moveDirectionType == MoveDirectionType.Knight)
+                            break;
+
+                        continue;
+                    }
+
+                    if (piece.HasFlag(color))
                         break;
 
-                    continue;
-                }
+                    var pieceType = piece & Piece.TypeMask;
 
-                if (piece.HasFlag(color))
-                    break;
-
-                var pieceType = piece & Piece.TypeMask;
-
-                if (directionLength == 3 && pieceType == Piece.Knight)
-                    return true;
-
-                switch (directionLength, pieceType)
-                {
-                    case (< 3, Piece.King) when stepCount == 1:
-                    case (< 3, Piece.Queen):
-                    case (1, Piece.Rook):
-                    case (2, Piece.Bishop):
+                    if (moveDirectionType == MoveDirectionType.Knight && pieceType == Piece.Knight)
                         return true;
+
+                    switch (moveDirectionType, pieceType)
+                    {
+                        case (MoveDirectionType.Diagonal or MoveDirectionType.Straight, Piece.King) when stepCount == 1:
+                        case (MoveDirectionType.Diagonal or MoveDirectionType.Straight, Piece.Queen):
+                        case (MoveDirectionType.Straight, Piece.Rook):
+                        case (MoveDirectionType.Diagonal, Piece.Bishop):
+                            return true;
+                    }
+
+                    break;
                 }
 
-                break;
             }
         }
 
@@ -96,9 +116,6 @@ public partial class Board
 
     private bool IsOppositeColouredPawn(Piece color, Square square)
     {
-        if (!square.IsWithinBoard())
-            return false;
-
         var piece = this[square];
         return (piece | color) == (Piece.Pawn | Piece.ColorMask);
     }
@@ -141,8 +158,8 @@ public partial class Board
         foreach (var direction in QueenMoveDirections)
         {
             var currentSquare = kingSquare;
-            var piece = Piece.None;
-            while ((currentSquare += direction).IsWithinBoard() && (piece = this[currentSquare]) == Piece.None)
+            var piece = Piece.Empty;
+            while ((piece = this[currentSquare += direction]) == Piece.Empty)
             {
             }
 
@@ -161,12 +178,12 @@ public partial class Board
         var movedPiece = this[move.From];
 
         // Handle castling through check
-        if ((movedPiece & Piece.TypeMask) is Piece.King && Math.Abs((move.To - move.From).X) == 2)
+        if ((movedPiece & Piece.TypeMask) is Piece.King && Math.Abs(move.To - move.From) == 2)
         {
             if (IsCheck(currentColor))
                 return true;
 
-            var inBetweenSquare = (move.To - move.From).X < 0
+            var inBetweenSquare = move.To - move.From < 0
                 ? move.To + Right
                 : move.To + Left;
             var inBetweenMove = new Move(
@@ -197,39 +214,37 @@ public partial class Board
         foreach (var direction in directions)
         {
             var currentPosition = square;
-
-            while ((currentPosition += direction).IsWithinBoard())
+            Piece pieceAtCurrentPosition;
+            while ((pieceAtCurrentPosition = this[currentPosition += direction]) != Piece.OutOfBounds)
             {
-                var pieceAtCurrentPosition = this[currentPosition];
-
                 // Stop if we hit our own piece
-                if (pieceAtCurrentPosition != Piece.None &&
+                if (pieceAtCurrentPosition != Piece.Empty &&
                     pieceAtCurrentPosition.HasFlag(pieceColor))
                     break;
 
-                var moveIsCapture = pieceAtCurrentPosition != Piece.None;
+                var moveIsCapture = pieceAtCurrentPosition != Piece.Empty;
 
                 if (pieceType is Piece.Pawn)
                 {
                     // Diagonal move without capture
-                    if (Math.Abs(direction.X) == 1 &&
-                        !(currentPosition == _enPassantAttackSquare) &&
+                    if (direction % 10 != 0 &&
+                        currentPosition != _enPassantAttackSquare &&
                         !moveIsCapture)
                         break;
 
                     // Two-square moves from non-starting position
-                    if (direction.Y == 2 && (square.Y != 1 || this[square+Up] != Piece.None || moveIsCapture))
+                    if (direction == 20 && ((int)square / 10 != 3 || this[square+Up] != Piece.Empty || moveIsCapture))
                         break;
 
-                    if (direction.Y == -2 && (square.Y != 6 || this[square+Down] != Piece.None || moveIsCapture))
+                    if (direction == -20 && ((int)square / 10 != 8 || this[square+Down] != Piece.Empty || moveIsCapture))
                         break;
 
                     // Capturing forward
-                    if (direction.Length() == 1 && moveIsCapture)
+                    if (Math.Abs(direction) == 10 && moveIsCapture)
                         break;
 
                     // Promotion
-                    if (currentPosition.Y % 7 == 0)
+                    if ((int)currentPosition / 10 is 2 or 9)
                     {
                         foreach (var promotionPieceType in PromotionPieceTypes)
                         {
@@ -254,37 +269,37 @@ public partial class Board
                     break;
 
                 // Add castling moves when a rook slides next to the king
-                if (pieceType is not Piece.Rook || currentPosition.Y % 7 != 0)
+                if (pieceType is not Piece.Rook || ((int)currentPosition / 10) is not (2 or 9))
                     continue;
 
-                if (currentPosition == Squares.D1 &&
-                    square == Squares.A1 &&
+                if (currentPosition == Square.D1 &&
+                    square == Square.A1 &&
                     pieceColor is Piece.White &&
                     _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteQueenSide))
-                    moves.Add(new Move(Squares.E1, Squares.C1));
+                    moves.Add(new Move(Square.E1, Square.C1));
 
-                if (currentPosition == Squares.F1 &&
-                    square == Squares.H1 &&
+                if (currentPosition == Square.F1 &&
+                    square == Square.H1 &&
                     pieceColor is Piece.White &&
                     _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteKingSide))
-                    moves.Add(new Move(Squares.E1, Squares.G1));
+                    moves.Add(new Move(Square.E1, Square.G1));
 
-                if (currentPosition == Squares.D8 &&
-                    square == Squares.A8 &&
+                if (currentPosition == Square.D8 &&
+                    square == Square.A8 &&
                     pieceColor is Piece.Black &&
                     _castlingPrivileges.HasFlag(CastlingPrivileges.BlackQueenSide))
-                    moves.Add(new Move(Squares.E8, Squares.C8));
+                    moves.Add(new Move(Square.E8, Square.C8));
 
-                if (currentPosition == Squares.F8 &&
-                    square == Squares.H8 &&
+                if (currentPosition == Square.F8 &&
+                    square == Square.H8 &&
                     pieceColor is Piece.Black &&
                     _castlingPrivileges.HasFlag(CastlingPrivileges.BlackKingSide))
-                    moves.Add(new Move(Squares.E8, Squares.G8));
+                    moves.Add(new Move(Square.E8, Square.G8));
             }
         }
     }
 
-    private Vector[] GetMoveVectorsForPiece(Piece piece)
+    private int[] GetMoveVectorsForPiece(Piece piece)
     {
         return piece switch
         {

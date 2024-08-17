@@ -6,12 +6,21 @@ namespace Chess;
 
 public partial class Board
 {
-    private readonly Piece[] _pieces = Enumerable.Repeat(Piece.None, 64).ToArray();
+    private readonly Piece[] _pieces;
     private Stack<BoardMoveDelta> _moveHistory = new();
     private Piece _colorToMove = Piece.White;
-    private Square _enPassantAttackSquare = Squares.NullSquare;
+    private Square _enPassantAttackSquare = Square.NullSquare;
     private CastlingPrivileges _castlingPrivileges = CastlingPrivileges.All;
-    private Square[] _kingPositions = [ Squares.NullSquare, Squares.NullSquare ];
+    private Square[] _kingPositions = [ Square.NullSquare, Square.NullSquare ];
+
+    public Board()
+    {
+        _pieces = Enumerable.Repeat(Piece.OutOfBounds, 120).ToArray();
+        foreach (var square in Squares.All)
+        {
+            this[square] = Piece.Empty;
+        }
+    }
 
     public Board Clone()
     {
@@ -57,8 +66,8 @@ public partial class Board
 
     public Piece this[Square square]
     {
-        get => _pieces[square.X + square.Y * 8];
-        set => _pieces[square.X + square.Y * 8] = value;
+        get => _pieces[(int)square];
+        set => _pieces[(int)square] = value;
     }
 
     internal CastlingPrivileges CastlingPrivileges
@@ -97,8 +106,8 @@ public partial class Board
         {
             for (int x = 0; x < 8; x++)
             {
-                var square = new Square(x, y);
-                stringRepresentation.Append(this[square].AsString());
+                var square = (x + 1) + (y + 2) * 10;
+                stringRepresentation.Append(_pieces[square].AsString());
             }
 
             stringRepresentation.Append('\n');

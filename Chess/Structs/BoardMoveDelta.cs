@@ -6,7 +6,7 @@ public readonly struct BoardMoveDelta(
     Move move,
     CastlingPrivileges castlingPrivileges,
     Square enPassantAttackSquare,
-    Piece directlyCapturedPiece = Piece.None)
+    Piece directlyCapturedPiece = Piece.Empty)
 {
     public readonly Move Move = move;
 

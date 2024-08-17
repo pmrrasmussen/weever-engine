@@ -9,7 +9,7 @@ public enum Piece
     Rook   = 3,
     Queen  = 4,
     King   = 5,
-    None   = 6,
+    Empty   = 6,
     White  = 1 << 3,
     Black  = 1 << 4,
     BlackKing   = Black | King,
@@ -50,7 +50,7 @@ public static class PieceExtensions
             Piece.BlackKnight => "\u265e",
             Piece.WhitePawn => "\u2659",
             Piece.BlackPawn => "\u265f",
-            Piece.None => "\u00B7",
+            Piece.Empty => "\u00B7",
             _ => throw new ArgumentOutOfRangeException($"Unknown piece {piece}"),
         };
     }

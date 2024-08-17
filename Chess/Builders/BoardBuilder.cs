@@ -37,7 +37,7 @@ public static class BoardBuilder
                     continue;
                 }
 
-                var square = new Square(x, y);
+                var square = (Square)(x + 1) + (y + 2) * 10;
                 var piece = GetPieceFromFen(entry);
 
                 board[square] = piece;
@@ -105,7 +105,7 @@ public static class BoardBuilder
     private static Square GetEnPassantAttackSquareFromFen(string fenEnPassantSquare)
     {
         return fenEnPassantSquare.Equals("-", StringComparison.OrdinalIgnoreCase)
-            ? Squares.NullSquare
-            : Square.FromString(fenEnPassantSquare);
+            ? Square.NullSquare
+            : fenEnPassantSquare.ToSquare();
     }
 }
