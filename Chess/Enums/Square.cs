@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace Chess.Enums;
 
 // We use a classic 10x12 mailbox board representation

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Chess.Enums;
 using Chess.Structs;
 
@@ -300,20 +299,5 @@ public partial class Board
                 }
             }
         }
-    }
-
-    private int[] GetMoveVectorsForPiece(Piece piece)
-    {
-        return piece switch
-        {
-            Piece.WhiteKing or Piece.BlackKing     => KingMoveDirections,
-            Piece.WhiteQueen or Piece.BlackQueen   => QueenMoveDirections,
-            Piece.WhiteRook or Piece.BlackRook     => RookMoveDirections,
-            Piece.WhiteBishop or Piece.BlackBishop => BishopMoveDirections,
-            Piece.WhiteKnight or Piece.BlackKnight => KnightMoveDirections,
-            Piece.WhitePawn                        => WhitePawnMoveDirections,
-            Piece.BlackPawn                        => BlackPawnMoveDirections,
-            _ => throw new ArgumentOutOfRangeException($"Unknown piece type {piece}"),
-        };
     }
 }
