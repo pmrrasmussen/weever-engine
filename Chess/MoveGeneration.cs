@@ -48,13 +48,24 @@ public partial class Board
         Up, Left, Right, Down, Up + Left, Up + Right, Down + Left, Down + Right
     ];
 
+    private static readonly int[][] MoveDirections =
+    [
+        BlackPawnMoveDirections,
+        KnightMoveDirections,
+        BishopMoveDirections,
+        RookMoveDirections,
+        QueenMoveDirections,
+        KingMoveDirections,
+        WhitePawnMoveDirections,
+    ];
+
     private static readonly int[][] AllMoveDirections =
     [
         RookMoveDirections,
         BishopMoveDirections,
         KnightMoveDirections,
     ];
-    
+
     private static readonly Piece[] PromotionPieceTypes =
     [
         Piece.Bishop,
@@ -203,54 +214,55 @@ public partial class Board
         return isCheck;
     }
 
-    private void AddPseudoLegalPieceMoves(Piece piece, Square square, List<Move> moves)
+    private void AddPseudoLegalPieceMoves(Piece movedPiece, Square fromSquare, List<Move> moves)
     {
-        var pieceType = piece & Piece.TypeMask;
-        var pieceColor = piece & Piece.ColorMask;
+        var movedPieceType = movedPiece & Piece.TypeMask;
+        var movedPieceColor = movedPiece & Piece.ColorMask;
 
-        var directions = GetMoveVectorsForPiece(piece);
+        var index = movedPiece == Piece.WhitePawn ? 6 : (int)movedPieceType;
+        var directions = MoveDirections[index];
 
         foreach (var direction in directions)
         {
-            var currentPosition = square;
-            Piece pieceAtCurrentPosition;
-            while ((pieceAtCurrentPosition = this[currentPosition += direction]) != Piece.OutOfBounds)
+            var currentSquare = fromSquare;
+            Piece pieceAtCurrentSquare;
+            while ((pieceAtCurrentSquare = this[currentSquare += direction]) != Piece.OutOfBounds)
             {
+                var moveIsCapture = pieceAtCurrentSquare != Piece.Empty;
+
                 // Stop if we hit our own piece
-                if (pieceAtCurrentPosition != Piece.Empty &&
-                    pieceAtCurrentPosition.HasFlag(pieceColor))
+                if (moveIsCapture && pieceAtCurrentSquare.HasFlag(movedPieceColor))
                     break;
 
-                var moveIsCapture = pieceAtCurrentPosition != Piece.Empty;
-
-                if (pieceType is Piece.Pawn)
+                if (movedPieceType is Piece.Pawn)
                 {
-                    // Diagonal move without capture
-                    if (direction % 10 != 0 &&
-                        currentPosition != _enPassantAttackSquare &&
-                        !moveIsCapture)
-                        break;
+                    // Forward moves
+                    if (direction % 10 == 0)
+                    {
+                        if (moveIsCapture)
+                            break;
 
-                    // Two-square moves from non-starting position
-                    if (direction == 20 && (square.Rank() != WhiteBackRank + 1 || this[square+Up] != Piece.Empty || moveIsCapture))
-                        break;
-
-                    if (direction == -20 && (square.Rank() != BlackBackRank - 1 || this[square+Down] != Piece.Empty || moveIsCapture))
-                        break;
-
-                    // Capturing forward
-                    if (Math.Abs(direction) == 10 && moveIsCapture)
-                        break;
+                        if (Math.Abs(direction) == 20 &&
+                            (fromSquare.Rank() is not (WhiteBackRank + 1 or BlackBackRank - 1) ||
+                             this[fromSquare + direction/2] != Piece.Empty))
+                            break;
+                    }
+                    // Diagonal moves
+                    else
+                    {
+                        if (currentSquare != _enPassantAttackSquare && !moveIsCapture)
+                            break;
+                    }
 
                     // Promotion
-                    if (currentPosition.Rank() is WhiteBackRank or BlackBackRank)
+                    if (currentSquare.Rank() is WhiteBackRank or BlackBackRank)
                     {
                         foreach (var promotionPieceType in PromotionPieceTypes)
                         {
-                            var promoteTo = promotionPieceType | pieceColor;
+                            var promoteTo = promotionPieceType | movedPieceColor;
                             moves.Add(new Move(
-                                from: square,
-                                to: currentPosition,
+                                from: fromSquare,
+                                to: currentSquare,
                                 promotionTo: promoteTo));
                         }
 
@@ -259,19 +271,19 @@ public partial class Board
                 }
 
                 moves.Add(new Move(
-                    from: square,
-                    to: currentPosition));
+                    from: fromSquare,
+                    to: currentSquare));
 
                 // Stop if the piece doesn't slide or we performed a capture
-                if (pieceType is Piece.Pawn or Piece.Knight or Piece.King ||
+                if (movedPieceType is Piece.Pawn or Piece.Knight or Piece.King ||
                     moveIsCapture)
                     break;
 
                 // Add castling moves when a rook slides next to the king
-                if (pieceType is not Piece.Rook || currentPosition.Rank() is not (WhiteBackRank or BlackBackRank))
+                if (movedPieceType is not Piece.Rook)
                     continue;
 
-                switch (currentPosition, square, pieceColor)
+                switch (currentPosition: currentSquare, square: fromSquare, pieceColor: movedPieceColor)
                 {
                     case (Square.D1, Square.A1, Piece.White) when _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteQueenSide):
                         moves.Add(new Move(Square.E1, Square.C1));

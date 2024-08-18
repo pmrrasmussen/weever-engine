@@ -62,17 +62,11 @@ public partial class Board
 
     private void HandleUndoEnPassant(Move move, Piece movedPieceType)
     {
-        if (movedPieceType != Piece.Pawn)
+        if ( movedPieceType != Piece.Pawn || move.To != _enPassantAttackSquare)
             return;
 
         var moveDirectionForOtherColor = _colorToMove == Piece.White ? Down : Up;
-
-        if (move.To == _enPassantAttackSquare)
-        {
-            var otherColor = _colorToMove ^ Piece.ColorMask;
-            this[_enPassantAttackSquare + moveDirectionForOtherColor] = Piece.Pawn | otherColor;
-        }
-
+        this[_enPassantAttackSquare + moveDirectionForOtherColor] = Piece.Pawn ^ _colorToMove ^ Piece.ColorMask;
     }
 
     private void HandleUndoCastling(Move move, Piece movedPieceType)
