@@ -84,6 +84,7 @@ public static class PieceExtensions
             Piece.WhitePawn => 82,
             Piece.BlackPawn => -82,
             Piece.Empty => 0,
+            Piece.OutOfBounds => 0,
             _ => throw new ArgumentOutOfRangeException($"Unknown piece {piece}"),
         };
     }
@@ -105,6 +106,7 @@ public static class PieceExtensions
             Piece.WhitePawn => 94,
             Piece.BlackPawn => -94,
             Piece.Empty => 0,
+            Piece.OutOfBounds => 0,
             _ => throw new ArgumentOutOfRangeException($"Unknown piece {piece}"),
         };
     }
@@ -126,6 +128,7 @@ public static class PieceExtensions
             Piece.WhitePawn => 0,
             Piece.BlackPawn => 0,
             Piece.Empty => 0,
+            Piece.OutOfBounds => 0,
             _ => throw new ArgumentOutOfRangeException($"Unknown piece {piece}"),
         };
     }

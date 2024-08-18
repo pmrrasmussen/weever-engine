@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿#define Evaluation
+
+using System.Text;
 using Chess.Enums;
 using Chess.Structs;
 
@@ -67,7 +69,20 @@ public partial class Board
     public Piece this[Square square]
     {
         get => _pieces[(int)square];
-        set => _pieces[(int)square] = value;
+        set
+        {
+#if Evaluation
+            var existingPiece = _pieces[(int)square];
+            var valueOfExistingPiece = GetSquareValue(square, existingPiece);
+            var valueOfNewPiece = GetSquareValue(square, value);
+
+            _middleGameEvaluation += valueOfNewPiece.middleGameValue - valueOfExistingPiece.middleGameValue;
+            _endGameEvaluation += valueOfNewPiece.endGameValue - valueOfExistingPiece.endGameValue;
+            _gamePhase += value.GamePhaseValue() - existingPiece.GamePhaseValue();
+#endif
+
+            _pieces[(int)square] = value;
+        }
     }
 
     internal CastlingPrivileges CastlingPrivileges

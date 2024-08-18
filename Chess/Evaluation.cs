@@ -1,5 +1,4 @@
 using Chess.Enums;
-using Chess.Structs;
 
 namespace Chess;
 
