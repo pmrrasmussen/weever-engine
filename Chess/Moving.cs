@@ -8,9 +8,12 @@ public partial class Board
     public void MakeMove(Move move)
     {
         _moveHistory.Push(new BoardMoveDelta(
-            move,
-            _castlingPrivileges,
-            _enPassantAttackSquare,
+            move: move,
+            castlingPrivileges: _castlingPrivileges,
+            enPassantAttackSquare: _enPassantAttackSquare,
+            middlegameEvaluation: _middlegameEvaluation,
+            endgameEvaluation: _endgameEvaluation,
+            gamePhase: _gamePhase,
             directlyCapturedPiece: this[move.To]));
 
         var movedPiece = this[move.From];
@@ -22,6 +25,12 @@ public partial class Board
         _enPassantAttackSquare = NewEnPassantSquareWhenMakingMove(move, movedPieceType);
 
         var pieceToPlace = move.PromotionTo !=  Piece.Empty ? move.PromotionTo : movedPiece;
+
+        UpdateGamePhase(move.To, movedPiece, pieceToPlace);
+
+        EvaluateReplacingPieceOnSquare(move.From, Piece.Empty);
+        EvaluateReplacingPieceOnSquare(move.To, pieceToPlace);
+
         this[move.From] = Piece.Empty;
         this[move.To] = pieceToPlace;
 
@@ -42,6 +51,9 @@ public partial class Board
 
         _castlingPrivileges = moveDelta.CastlingPrivileges;
         _enPassantAttackSquare = moveDelta.EnPassantAttackSquare;
+        _middlegameEvaluation = moveDelta.MiddlegameEvaluation;
+        _endgameEvaluation = moveDelta.EndgameEvaluation;
+        _gamePhase = moveDelta.GamePhase;
         _colorToMove ^= Piece.ColorMask;
 
         var lastMove = moveDelta.Move;
@@ -86,12 +98,14 @@ public partial class Board
 
     private void HandleEnPassantCaptureWhenMakingMove(Move move, Piece movedPieceType)
     {
-        if (movedPieceType != Piece.Pawn)
+        if (movedPieceType != Piece.Pawn || move.To != _enPassantAttackSquare)
             return;
 
         var moveDirectionForOtherColor = _colorToMove == Piece.White ? Down : Up;
-        if (move.To == _enPassantAttackSquare)
-            this[_enPassantAttackSquare + moveDirectionForOtherColor] = Piece.Empty;
+
+        var enPassantCaptureSquare = _enPassantAttackSquare + moveDirectionForOtherColor;
+        EvaluateReplacingPieceOnSquare(enPassantCaptureSquare, Piece.Empty);
+        this[enPassantCaptureSquare] = Piece.Empty;
     }
 
     private Square NewEnPassantSquareWhenMakingMove(Move move, Piece movedPieceType)
@@ -111,6 +125,8 @@ public partial class Board
         var currentRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.Rank();
         var newRookPosition = (Square)(((int)move.To + (int)move.From) / 2);
 
+        EvaluateReplacingPieceOnSquare(newRookPosition, this[currentRookPosition]);
+        EvaluateReplacingPieceOnSquare(currentRookPosition, Piece.Empty);
         this[newRookPosition] = this[currentRookPosition];
         this[currentRookPosition] = Piece.Empty;
     }

@@ -813,7 +813,9 @@ public class PerftTest
 
         // Arrange
         var board = BoardBuilder.FromFen(fen);
-        // _testOutputHelper.WriteLine(board.ToString());
+        board.RecomputeEvaluation();
+        _testOutputHelper.WriteLine(board.GetEvaluation().ToString());
+        _testOutputHelper.WriteLine(board.ToString());
 
         // Act
         var nodes = GetNodeCount(board, depth);

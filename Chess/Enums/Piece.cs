@@ -66,4 +66,70 @@ public static class PieceExtensions
             _ => throw new ArgumentOutOfRangeException(),
         };
     }
+
+    public static int MiddleGameValue(this Piece piece)
+    {
+        return piece switch
+        {
+            Piece.WhiteKing => 0,
+            Piece.BlackKing => 0,
+            Piece.WhiteQueen => 1025,
+            Piece.BlackQueen => -1025,
+            Piece.WhiteRook => 477,
+            Piece.BlackRook => -477,
+            Piece.WhiteBishop => 365,
+            Piece.BlackBishop => -365,
+            Piece.WhiteKnight => 337,
+            Piece.BlackKnight => -337,
+            Piece.WhitePawn => 82,
+            Piece.BlackPawn => -82,
+            Piece.Empty => 0,
+            Piece.OutOfBounds => 0,
+            _ => throw new ArgumentOutOfRangeException($"Unknown piece {piece}"),
+        };
+    }
+
+    public static int EndGameValue(this Piece piece)
+    {
+        return piece switch
+        {
+            Piece.WhiteKing => 0,
+            Piece.BlackKing => 0,
+            Piece.WhiteQueen => 936,
+            Piece.BlackQueen => -936,
+            Piece.WhiteRook => 512,
+            Piece.BlackRook => -512,
+            Piece.WhiteBishop => 297,
+            Piece.BlackBishop => -297,
+            Piece.WhiteKnight => 281,
+            Piece.BlackKnight => -281,
+            Piece.WhitePawn => 94,
+            Piece.BlackPawn => -94,
+            Piece.Empty => 0,
+            Piece.OutOfBounds => 0,
+            _ => throw new ArgumentOutOfRangeException($"Unknown piece {piece}"),
+        };
+    }
+
+    public static int GamePhaseValue(this Piece piece)
+    {
+        return piece switch
+        {
+            Piece.WhiteKing => 0,
+            Piece.BlackKing => 0,
+            Piece.WhiteQueen => 4,
+            Piece.BlackQueen => 4,
+            Piece.WhiteRook => 2,
+            Piece.BlackRook => 2,
+            Piece.WhiteBishop => 1,
+            Piece.BlackBishop => 1,
+            Piece.WhiteKnight => 1,
+            Piece.BlackKnight => 1,
+            Piece.WhitePawn => 0,
+            Piece.BlackPawn => 0,
+            Piece.Empty => 0,
+            Piece.OutOfBounds => 0,
+            _ => throw new ArgumentOutOfRangeException($"Unknown piece {piece}"),
+        };
+    }
 }

@@ -16,7 +16,7 @@ public class Program
             var board = BoardBuilder.GetDefaultStartingPosition();
             var start = Stopwatch.GetTimestamp();
 
-            nodes = GetNodeCount(board, 5);
+            nodes = GetNodeCount(board, 6);
 
             Console.WriteLine(Stopwatch.GetElapsedTime(start));
         }
