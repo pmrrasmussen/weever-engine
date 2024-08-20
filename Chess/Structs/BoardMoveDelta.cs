@@ -6,8 +6,8 @@ public readonly struct BoardMoveDelta(
     Move move,
     CastlingPrivileges castlingPrivileges,
     Square enPassantAttackSquare,
-    int middleGameEvaluation,
-    int endGameEvaluation,
+    int middlegameEvaluation,
+    int endgameEvaluation,
     int gamePhase,
     Piece directlyCapturedPiece = Piece.Empty)
 {
@@ -19,9 +19,9 @@ public readonly struct BoardMoveDelta(
 
     public readonly Piece DirectlyCapturedPiece = directlyCapturedPiece;
 
-    public readonly int MiddleGameEvaluation = middleGameEvaluation;
+    public readonly int MiddlegameEvaluation = middlegameEvaluation;
 
-    public readonly int EndGameEvaluation = endGameEvaluation;
+    public readonly int EndgameEvaluation = endgameEvaluation;
 
     public readonly int GamePhase = gamePhase;
 }

@@ -11,8 +11,8 @@ public partial class Board
             move: move,
             castlingPrivileges: _castlingPrivileges,
             enPassantAttackSquare: _enPassantAttackSquare,
-            middleGameEvaluation: _middleGameEvaluation,
-            endGameEvaluation: _endGameEvaluation,
+            middlegameEvaluation: _middlegameEvaluation,
+            endgameEvaluation: _endgameEvaluation,
             gamePhase: _gamePhase,
             directlyCapturedPiece: this[move.To]));
 
@@ -51,8 +51,8 @@ public partial class Board
 
         _castlingPrivileges = moveDelta.CastlingPrivileges;
         _enPassantAttackSquare = moveDelta.EnPassantAttackSquare;
-        _middleGameEvaluation = moveDelta.MiddleGameEvaluation;
-        _endGameEvaluation = moveDelta.EndGameEvaluation;
+        _middlegameEvaluation = moveDelta.MiddlegameEvaluation;
+        _endgameEvaluation = moveDelta.EndgameEvaluation;
         _gamePhase = moveDelta.GamePhase;
         _colorToMove ^= Piece.ColorMask;
 
