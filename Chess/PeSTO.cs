@@ -2,11 +2,11 @@ using Chess.Enums;
 
 namespace Chess;
 
-public partial class Board
+public static class PeSTO
 {
     // Piece square tables from the PeSTO evaluation function.
     // See https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function
-    private const int MaximumGamePhase = 24;
+    public const int MaximumGamePhase = 24;
 
     private static readonly int[] MiddlegamePieceValue = [82, 337, 365, 477, 1025,  0];
     private static readonly int[] EndgamePieceValue = [94, 281, 297, 512,  936,  0];
@@ -156,7 +156,7 @@ public partial class Board
     ];
 
     // Can be indexed into using the Piece enum
-    private static readonly int[][] MiddlegameTables =
+    public static readonly int[][] MiddlegameTables =
     [
         [],
         [],
@@ -181,7 +181,7 @@ public partial class Board
         PadTable(FlipTable(QueenMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.Queen]).ToArray())),
         PadTable(FlipTable(KingMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.King]).ToArray())),
     ];
-    private static readonly int[][] EndgameTables =
+    public static readonly int[][] EndgameTables =
     [
         [],
         [],
@@ -206,7 +206,7 @@ public partial class Board
         PadTable(FlipTable(QueenEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.Queen]).ToArray())),
         PadTable(FlipTable(KingEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.King]).ToArray())),
     ];
-    private static readonly int[] GamePhaseTable = [0, 1, 1, 2, 4, 0];
+    public static readonly int[] GamePhaseTable = [0, 1, 1, 2, 4, 0];
 
     private static int[] FlipTable(int[] table)
     {
