@@ -28,21 +28,21 @@ public static class SquareExtensions
 
         var x = square[0] switch
         {
-            'A' or 'a' => 20,
-            'B' or 'b' => 30,
-            'C' or 'c' => 40,
-            'D' or 'd' => 50,
-            'E' or 'e' => 60,
-            'F' or 'f' => 70,
-            'G' or 'g' => 80,
-            'H' or 'h' => 90,
+            'A' or 'a' => 1,
+            'B' or 'b' => 2,
+            'C' or 'c' => 3,
+            'D' or 'd' => 4,
+            'E' or 'e' => 5,
+            'F' or 'f' => 6,
+            'G' or 'g' => 7,
+            'H' or 'h' => 8,
             _ => throw new ArgumentOutOfRangeException($"Unknown square {square}"),
         };
 
         if (!int.TryParse(square[1].ToString(), out var y) && y is > 0 and < 9)
             throw new ArgumentOutOfRangeException($"Unknown square {square}");
 
-        return (Square)x + y;
+        return (Square)x + (y + 1) * 10;
     }
 
     public static string ToString(this Square square)

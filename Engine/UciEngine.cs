@@ -1,47 +1,34 @@
+using Chess.Exceptions;
 using Chess.Structs;
 using Engine.Exceptions;
 using Engine.Interfaces;
 
 namespace Engine;
 
-public class UciEngine
+public class UciEngine(
+    TextReader input,
+    TextWriter output,
+    ISearcher searcher)
 {
-    private readonly TextReader _input;
-    private readonly TextWriter _output;
-    private readonly ISearcher _searcher;
-
     private Task _currentSearch = Task.CompletedTask;
     private bool _stopEngine;
     private bool _killSearch;
     private bool _debugModeActive = false;
 
-    public UciEngine(
-        TextReader input,
-        TextWriter output,
-        ISearcher searcher)
-    {
-        _input = input;
-        _output = output;
-        _searcher = searcher;
-    }
+    private CancellationTokenSource _searchTokenSource = new ();
 
-    public void Stop()
+    public void Run(CancellationToken cancellationToken)
     {
-        _stopEngine = true;
-    }
-
-    public async Task Start()
-    {
-        while (!_stopEngine)
+        while (!_stopEngine && !cancellationToken.IsCancellationRequested)
         {
-            string input = await _input.ReadLineAsync() ?? "";
-            input = input.Trim();
+            var input1 = input.ReadLine() ?? "";
+            input1 = input1.Trim();
 
-            if (input == "")
+            if (input1 == "")
                 continue;
 
-            var command = input.Split(" ")[0];
-            var arguments = input.Split(" ")[1..];
+            var command = input1.Split(" ")[0];
+            var arguments = input1.Split(" ")[1..];
 
             switch (command.ToLower())
             {
@@ -90,62 +77,72 @@ public class UciEngine
         }
     }
 
+    private void Stop()
+    {
+        _stopEngine = true;
+    }
+
     private void InvalidFormat(string errorMessage, string correctFormat)
     {
-        _output.WriteLine($"Invalid format: {errorMessage}\nPlease use '{correctFormat}'");
+        output.WriteLine($"Invalid format: {errorMessage}\nPlease use '{correctFormat}'");
     }
 
     private void UciOk()
     {
-        _output.WriteLine("uciok");
+        output.WriteLine("uciok");
     }
 
     private void Id()
     {
-        _output.WriteLine("id name Weever");
+        output.WriteLine("id name Weever");
     }
 
     private void ReadyOk()
     {
-        _output.WriteLine("readyok");
+        output.WriteLine("readyok");
     }
 
     private void BestMove(Move bestMove)
     {
-        _output.WriteLine($"bestmove {bestMove.ToString()}");
+        output.WriteLine($"bestmove {bestMove.ToString().ToLower()}");
     }
 
     private void ResetEngine()
     {
+        KilLSearch();
     }
 
     private void Go(string[] arguments)
     {
         if (_currentSearch.Status == TaskStatus.Running)
-            _output.WriteLine("Invalid command. Search is already running.");
-        if (arguments.Length == 0)
-        {
-            _currentSearch = NewInfiniteSearch();
-            return;
-        }
+            output.WriteLine("Invalid command. Search is already running.");
 
-        _currentSearch = NewSearch(arguments);
+        _searchTokenSource = new CancellationTokenSource();
+        var cancellationToken = _searchTokenSource.Token;
+
+        _currentSearch = arguments.Length == 0
+            ? Task.Run(() => InfiniteSearch(cancellationToken), cancellationToken)
+            : Task.Run(() => Search(arguments, cancellationToken), cancellationToken);
     }
 
     private void EndSearch()
     {
-        _searcher.EndSearch();
+        _searchTokenSource.Cancel();
     }
 
     private void KilLSearch()
     {
+        if (_currentSearch.Status != TaskStatus.Running)
+            return;
+
         _killSearch = true;
-        _searcher.EndSearch();
+        EndSearch();
     }
 
-    private async Task NewInfiniteSearch()
+    private void InfiniteSearch(CancellationToken cancellationToken)
     {
-        var bestMove = await _searcher.InfiniteSearch();
+
+        var bestMove = searcher.Search(int.MaxValue, cancellationToken);
 
         if (!_killSearch)
             BestMove(bestMove);
@@ -153,9 +150,9 @@ public class UciEngine
         _killSearch = false;
     }
 
-    private async Task NewSearch(string[] arguments)
+    private  void Search(string[] arguments, CancellationToken cancellationToken)
     {
-        var bestMove = await _searcher.Search(1000);
+        var bestMove = searcher.Search(1000, cancellationToken);
 
         if (!_killSearch)
             BestMove(bestMove);
@@ -171,50 +168,55 @@ public class UciEngine
             _debugModeActive = arguments[0] == "on";
     }
 
-    private void SetUpPosition(string[] positionArguments)
+    private void SetUpPosition(string[] arguments)
     {
-        if (positionArguments.Length == 0)
+        if (arguments.Length == 0)
             throw new InvalidPositionException("No arguments specified.");
 
-        var positionType = positionArguments[0];
-        string fen = "";
-        string[] moveStrings;
+        var positionType = arguments[0];
+        var remainingArguments = arguments[1..];
+        var fen = "";
         switch (positionType)
         {
             case "startpos":
-                moveStrings = positionArguments[1..];
                 break;
             case "fen":
-                if (positionArguments.Length == 1)
+                if (remainingArguments.Length == 0)
                     throw new InvalidPositionException("Fen string is missing.");
 
-                fen = positionArguments[1];
-                moveStrings = positionArguments[2..];
+                fen = remainingArguments[0];
+                remainingArguments = remainingArguments[1..];
                 break;
             default:
                 throw new InvalidPositionException($"Invalid position argument {positionType}.");
         }
 
-        var moves = new List<Move>();
-        foreach (var moveString in moveStrings)
+        string[] moveStrings = [];
+        if (remainingArguments.Length > 0)
         {
-            try
-            {
-                moves.Add(moveString.ToMove());
-            }
-            catch (Exception e)
-            {
-                throw new InvalidPositionException($"Invalid move {moveString}. Error message: {e.Message}.");
-            }
+            if (!remainingArguments[0].Equals("moves", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidPositionException($"Invalid argument {remainingArguments[0]} was expecting 'moves'");
+
+            moveStrings = remainingArguments[1..];
+        }
+
+        List<Move> moves;
+        try
+        {
+            moves = moveStrings.Select(s => s.ToMove()).ToList();
+        }
+        catch (InvalidMoveException e)
+        {
+            throw new InvalidPositionException($"Invalid moves. Error message: {e.Message}.");
         }
 
         try
         {
-            _searcher.SetPosition(fen, moves);
+            searcher.SetPosition(fen, moves);
         }
         catch (Exception e)
         {
-            throw new InvalidPositionException($"Failed to load position from arguments {positionArguments[1]}. Error message: {e.Message}");
+            throw new InvalidPositionException($"Failed to load position from arguments {arguments}. Error message: {e.Message}");
         }
 
     }

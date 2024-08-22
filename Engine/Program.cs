@@ -4,11 +4,11 @@ namespace Engine;
 
 public class Program
 {
-    public static async Task Main()
+    public static void Main()
     {
-        var searcher = new Searcher();
+        var searcher = new RandomSearcher();
         var engine = new UciEngine(Console.In, Console.Out, searcher);
 
-        await engine.Start();
+        engine.Run(CancellationToken.None);
     }
 }
