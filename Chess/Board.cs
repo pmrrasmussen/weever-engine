@@ -22,6 +22,8 @@ public partial class Board
         }
     }
 
+    public bool WhiteToMove => _colorToMove == Piece.White;
+
     public Board Clone()
     {
         var newBoard = new Board

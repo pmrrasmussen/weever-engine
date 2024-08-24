@@ -43,7 +43,7 @@ public static class MoveExtensions
         if (move.Length == 4)
             return new Move(fromSquare, toSquare);
 
-        var promotionPiece = move[5].ToPiece();
+        var promotionPiece = move[4].ToPiece();
         promotionPiece |= (int)toSquare/20 == 2 ? Piece.White : Piece.Black;
 
         return new Move(fromSquare, toSquare, promotionPiece);

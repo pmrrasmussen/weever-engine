@@ -156,6 +156,7 @@ public static class PeSTO
     ];
 
     // Can be indexed into using the Piece enum
+    // TODO: Clean up this mess!!
     public static readonly int[][] MiddlegameTables =
     [
         [],
@@ -166,20 +167,20 @@ public static class PeSTO
         [],
         [],
         [],
-        PadTable(PawnMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.Pawn]).ToArray()),
-        PadTable(KnightMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.Knight]).ToArray()),
-        PadTable(BishopMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.Bishop]).ToArray()),
-        PadTable(RookMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.Rook]).ToArray()),
-        PadTable(QueenMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.Queen]).ToArray()),
-        PadTable(KingMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.King]).ToArray()),
-        [],
-        [],
         PadTable(FlipTable(PawnMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.Pawn]).ToArray())),
         PadTable(FlipTable(KnightMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.Knight]).ToArray())),
         PadTable(FlipTable(BishopMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.Bishop]).ToArray())),
         PadTable(FlipTable(RookMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.Rook]).ToArray())),
         PadTable(FlipTable(QueenMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.Queen]).ToArray())),
         PadTable(FlipTable(KingMiddlegameTable.Select(v => v + MiddlegamePieceValue[(int)Piece.King]).ToArray())),
+        [],
+        [],
+        PadTable(PawnMiddlegameTable.Select(v => -v - MiddlegamePieceValue[(int)Piece.Pawn]).ToArray()),
+        PadTable(KnightMiddlegameTable.Select(v => -v - MiddlegamePieceValue[(int)Piece.Knight]).ToArray()),
+        PadTable(BishopMiddlegameTable.Select(v => -v - MiddlegamePieceValue[(int)Piece.Bishop]).ToArray()),
+        PadTable(RookMiddlegameTable.Select(v => -v - MiddlegamePieceValue[(int)Piece.Rook]).ToArray()),
+        PadTable(QueenMiddlegameTable.Select(v => -v - MiddlegamePieceValue[(int)Piece.Queen]).ToArray()),
+        PadTable(KingMiddlegameTable.Select(v => -v - MiddlegamePieceValue[(int)Piece.King]).ToArray()),
     ];
     public static readonly int[][] EndgameTables =
     [
@@ -191,20 +192,20 @@ public static class PeSTO
         [],
         [],
         [],
-        PadTable(PawnEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.Pawn]).ToArray()),
-        PadTable(KnightEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.Knight]).ToArray()),
-        PadTable(BishopEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.Bishop]).ToArray()),
-        PadTable(RookEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.Rook]).ToArray()),
-        PadTable(QueenEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.Queen]).ToArray()),
-        PadTable(KingEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.King]).ToArray()),
-        [],
-        [],
         PadTable(FlipTable(PawnEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.Pawn]).ToArray())),
         PadTable(FlipTable(KnightEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.Knight]).ToArray())),
         PadTable(FlipTable(BishopEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.Bishop]).ToArray())),
         PadTable(FlipTable(RookEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.Rook]).ToArray())),
         PadTable(FlipTable(QueenEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.Queen]).ToArray())),
         PadTable(FlipTable(KingEndgameTable.Select(v => v + EndgamePieceValue[(int)Piece.King]).ToArray())),
+        [],
+        [],
+        PadTable(PawnEndgameTable.Select(v => -v - EndgamePieceValue[(int)Piece.Pawn]).ToArray()),
+        PadTable(KnightEndgameTable.Select(v => -v - EndgamePieceValue[(int)Piece.Knight]).ToArray()),
+        PadTable(BishopEndgameTable.Select(v => -v - EndgamePieceValue[(int)Piece.Bishop]).ToArray()),
+        PadTable(RookEndgameTable.Select(v => -v - EndgamePieceValue[(int)Piece.Rook]).ToArray()),
+        PadTable(QueenEndgameTable.Select(v => -v - EndgamePieceValue[(int)Piece.Queen]).ToArray()),
+        PadTable(KingEndgameTable.Select(v => -v - EndgamePieceValue[(int)Piece.King]).ToArray()),
     ];
     public static readonly int[] GamePhaseTable = [0, 1, 1, 2, 4, 0];
 
@@ -214,7 +215,7 @@ public static class PeSTO
 
         for (int i = 64; i > 0; i -= 8)
         {
-            flippedTable.AddRange(table[(i-8)..i].Select(v => -v));
+            flippedTable.AddRange(table[(i-8)..i]);
         }
 
         return flippedTable.ToArray();

@@ -6,7 +6,7 @@ public class Program
 {
     public static void Main()
     {
-        var searcher = new RandomSearcher();
+        var searcher = new DepthSearcher();
         var engine = new UciEngine(Console.In, Console.Out, searcher);
 
         engine.Run(CancellationToken.None);

@@ -51,6 +51,7 @@ public static class BoardBuilder
         board.EnPassantAttackSquare = GetEnPassantAttackSquareFromFen(enPassantSquare);
 
         board.UpdateKingPositions();
+        board.RecomputeEvaluation();
 
         return board;
     }
