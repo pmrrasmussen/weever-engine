@@ -14,8 +14,9 @@ public partial class Board
     {
         var middleGamePhase = Math.Min(PeSTO.MaximumGamePhase, _gamePhase);
         var endGamePhase = PeSTO.MaximumGamePhase - middleGamePhase;
+        var colorMultiplier = WhiteToMove ? 1 : -1;
 
-        return (middleGamePhase * _middlegameEvaluation + endGamePhase * _endgameEvaluation)/PeSTO.MaximumGamePhase;
+        return colorMultiplier * (middleGamePhase * _middlegameEvaluation + endGamePhase * _endgameEvaluation)/PeSTO.MaximumGamePhase;
     }
 
     public void RecomputeEvaluation()

@@ -7,7 +7,7 @@ namespace Engine;
 
 public class DepthSearcher : ISearcher
 {
-    private const int Depth = 5;
+    private const int Depth = 1;
     private const int MinScore = -100000;
 
     private Board _board = BoardBuilder.GetDefaultStartingPosition();
@@ -28,12 +28,10 @@ public class DepthSearcher : ISearcher
         var bestScore = MinScore-Depth;
         var bestMove = moves[0];
 
-        var colorMultiplier = _board.WhiteToMove ? 1 : -1;
-
         foreach (var move in moves)
         {
             _board.MakeMove(move);
-            var evaluation = colorMultiplier * GetEvaluation(_board, Depth-1);
+            var evaluation = -GetEvaluation(_board, Depth-1);
             _board.UndoLastMove();
 
             if (bestScore >= evaluation)
@@ -52,15 +50,14 @@ public class DepthSearcher : ISearcher
             return position.GetEvaluation();
 
         var best = MinScore-depth;
-        var colorMultiplier = position.WhiteToMove ? 1 : -1;
 
         foreach (var move in position.GetLegalMoves())
         {
             position.MakeMove(move);
-            best = int.Max(best, GetEvaluation(position, depth - 1) * colorMultiplier);
+            best = int.Max(best, GetEvaluation(position, depth - 1));
             position.UndoLastMove();
         }
 
-        return best * colorMultiplier;
+        return best;
     }
 }
