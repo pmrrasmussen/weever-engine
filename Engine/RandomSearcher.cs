@@ -20,11 +20,11 @@ public class RandomSearcher : ISearcher
             _board.MakeMove(move);
     }
 
-    public Move Search(int remainingTimeInMilliseconds, CancellationToken cancellationToken)
+    public (Move move, int evaluation) Search(int remainingTimeInMilliseconds, CancellationToken cancellationToken)
     {
         var moves = _board.GetLegalMoves();
         var index = _random.Next(moves.Count);
 
-        return moves[index];
+        return (moves[index], 0);
     }
 }

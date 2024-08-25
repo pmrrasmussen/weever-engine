@@ -20,7 +20,7 @@ public class GreedySearcher : ISearcher
             _board.MakeMove(move);
     }
 
-    public Move Search(int remainingTimeInMilliseconds, CancellationToken cancellationToken)
+    public (Move move, int evaluation) Search(int remainingTimeInMilliseconds, CancellationToken cancellationToken)
     {
         var moves = _board.GetLegalMoves();
         var bestScore = int.MinValue;
@@ -41,6 +41,6 @@ public class GreedySearcher : ISearcher
             bestMove = move;
         }
 
-        return bestMove;
+        return (bestMove, bestScore);
     }
 }

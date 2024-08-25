@@ -73,6 +73,11 @@ public partial class Board
         Piece.Queen
     ];
 
+    public bool IsPlayerToMoveInCheck()
+    {
+        return IsCheck(_colorToMove);
+    }
+
     private bool IsCheck(Piece color)
     {
         var forwardsDirection = color is Piece.White ? Up : Down;

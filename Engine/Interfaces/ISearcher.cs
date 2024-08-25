@@ -6,5 +6,5 @@ public interface ISearcher
 {
     void SetPosition(string fen, IEnumerable<Move> moves);
 
-    Move Search(int remainingTimeInMilliseconds, CancellationToken cancellationToken);
+    (Move move, int evaluation) Search(int remainingTimeInMilliseconds, CancellationToken cancellationToken);
 }

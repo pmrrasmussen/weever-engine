@@ -22,7 +22,7 @@ public class DepthSearcher : ISearcher
             _board.MakeMove(move);
     }
 
-    public Move Search(int remainingTimeInMilliseconds, CancellationToken cancellationToken)
+    public (Move move, int evaluation) Search(int remainingTimeInMilliseconds, CancellationToken cancellationToken)
     {
         var moves = _board.GetLegalMoves();
         var bestScore = MinScore-Depth;
@@ -41,7 +41,7 @@ public class DepthSearcher : ISearcher
             bestMove = move;
         }
 
-        return bestMove;
+        return (bestMove, bestScore);
     }
 
     private int GetEvaluation(Board position, int depth)

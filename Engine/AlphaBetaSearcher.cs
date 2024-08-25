@@ -1,4 +1,3 @@
-using System.Security;
 using Chess;
 using Chess.Builders;
 using Chess.Structs;
@@ -8,12 +7,17 @@ namespace Engine;
 
 public class AlphaBetaSearcher : ISearcher
 {
-    private const int Depth = 6;
-    private const int MaxScore = 100000;
-    private const int MinScore = -MaxScore;
+    public const int CheckMateScore = 100000;
+    private const int MinScore = -CheckMateScore;
 
+    private Board _board;
+    private int _maxPly;
 
-    private Board _board = BoardBuilder.GetDefaultStartingPosition();
+    public AlphaBetaSearcher(int maxPly = int.MaxValue)
+    {
+        _board = BoardBuilder.GetDefaultStartingPosition();
+        _maxPly = maxPly;
+    }
 
     public void SetPosition(string fen, IEnumerable<Move> moves)
     {
@@ -25,49 +29,57 @@ public class AlphaBetaSearcher : ISearcher
             _board.MakeMove(move);
     }
 
-    public Move Search(int remainingTimeInMilliseconds, CancellationToken cancellationToken)
+    public (Move move, int evaluation) Search(int remainingTimeInMilliseconds, CancellationToken cancellationToken)
     {
         var depth = 1;
         Move bestMove = default;
+        int bestEvaluation = default;
 
         // Iterative deepening
-        while (true)
+        while (depth <= _maxPly)
         {
-            Console.WriteLine(depth);
-            var (candidateBestMove, _) = AlphaBetaSearch(
+            var (bestMoves, evaluation) = AlphaBetaSearch(
                 position: _board,
-                alpha: MinScore,
-                beta: MaxScore,
+                alpha: MinScore - depth,
+                beta: CheckMateScore + depth,
                 remainingDepth: depth++,
                 cancellationToken: cancellationToken);
 
             if (cancellationToken.IsCancellationRequested)
                 break;
 
-            bestMove = candidateBestMove;
+            Console.WriteLine($"info depth {depth} score cp {evaluation} pv {String.Join(' ', bestMoves.Select(m => m.ToString().ToLower()).Reverse())}");
+            bestMove = bestMoves[^1];
+            bestEvaluation = evaluation;
         }
 
-        return bestMove;
+        return (bestMove, bestEvaluation);
     }
 
-    private (Move bestMove, int evaluation) AlphaBetaSearch(
+    private (List<Move> bestMove, int evaluation) AlphaBetaSearch(
         Board position,
         int alpha,
         int beta,
         int remainingDepth,
         CancellationToken cancellationToken)
     {
-        Move bestMove = default;
-
-        if (remainingDepth == 0)
-            return (bestMove, position.GetEvaluation());
+        // TODO: Something is wrong in the endgame near checkmate. Check when the max value is applied.
+        var bestVariation = new List<Move>();
+        var variation = new List<Move>();
+        int moveEvaluation;
 
         var bestEvaluation = MinScore-remainingDepth;
 
-        foreach (var move in position.GetLegalMoves())
+        var legalMoves = position.GetLegalMoves();
+        if (legalMoves.Count == 0)
+            return ([], _board.IsPlayerToMoveInCheck() ? bestEvaluation : 0);
+
+        foreach (var move in legalMoves)
         {
             position.MakeMove(move);
-            var (_, evaluation) = AlphaBetaSearch(
+            (variation, moveEvaluation) = remainingDepth == 0
+                ? (variation, _board.GetEvaluation())
+                : AlphaBetaSearch(
                 position: position,
                 alpha: -beta,
                 beta: -alpha,
@@ -75,16 +87,18 @@ public class AlphaBetaSearcher : ISearcher
                 cancellationToken: cancellationToken);
             position.UndoLastMove();
 
-            if (-evaluation > bestEvaluation)
+            if (-moveEvaluation > bestEvaluation)
             {
-                alpha = int.Max(bestEvaluation = -evaluation, alpha);
-                bestMove = move;
+                bestEvaluation = -moveEvaluation;
+                alpha = int.Max(bestEvaluation, alpha);
+                bestVariation = variation.ToList();
+                bestVariation.Add(move);
             }
 
             if (bestEvaluation >= beta || cancellationToken.IsCancellationRequested)
                 break;
         }
 
-        return (bestMove, bestEvaluation);
+        return (bestVariation, bestEvaluation);
     }
 }
