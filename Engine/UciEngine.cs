@@ -119,6 +119,7 @@ public class UciEngine(
 
         _searchTokenSource = new CancellationTokenSource();
         var cancellationToken = _searchTokenSource.Token;
+        _searchTokenSource.CancelAfter(2000);
 
         _currentSearch = arguments.Length == 0
             ? Task.Run(() => InfiniteSearch(cancellationToken), cancellationToken)
@@ -141,7 +142,6 @@ public class UciEngine(
 
     private void InfiniteSearch(CancellationToken cancellationToken)
     {
-
         var bestMove = searcher.Search(int.MaxValue, cancellationToken);
 
         if (!_killSearch)
@@ -152,7 +152,7 @@ public class UciEngine(
 
     private  void Search(string[] arguments, CancellationToken cancellationToken)
     {
-        var bestMove = searcher.Search(1000, cancellationToken);
+        var bestMove = searcher.Search(3000, cancellationToken);
 
         if (!_killSearch)
             BestMove(bestMove);
