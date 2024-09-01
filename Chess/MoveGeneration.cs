@@ -75,24 +75,25 @@ public partial class Board
 
     public bool IsPlayerToMoveInCheck()
     {
-        return IsCheck(_colorToMove);
+        var kingPosition = _kingPositions[_colorToMove.KingPositionIndex()];
+
+        return IsThreatened(kingPosition, _colorToMove);
     }
 
-    private bool IsCheck(Piece color)
+    private bool IsThreatened(Square square, Piece ownColor)
     {
-        var enemyColor = color ^ Piece.ColorMask;
+        var enemyColor = ownColor ^ Piece.ColorMask;
         var enemyForwardDirection = enemyColor is Piece.White ? Up : Down;
-        var kingPosition = _kingPositions[color.KingPositionIndex()];
 
-        if (this[kingPosition - (enemyForwardDirection + Right)] == (Piece.Pawn | enemyColor) ||
-            this[kingPosition - (enemyForwardDirection + Left)] == (Piece.Pawn | enemyColor))
+        if (this[square - (enemyForwardDirection + Right)] == (Piece.Pawn | enemyColor) ||
+            this[square - (enemyForwardDirection + Left)] == (Piece.Pawn | enemyColor))
             return true;
 
         foreach (var moveDirectionType in MoveDirectionTypes)
         {
             foreach (var moveDirection in AllMoveDirections[(int)moveDirectionType])
             {
-                var currentPosition = kingPosition;
+                var currentPosition = square;
                 var stepCount = 0;
                 Piece piece;
                 while ((piece = this[currentPosition += moveDirection]) != Piece.OutOfBounds)
@@ -110,7 +111,12 @@ public partial class Board
                     var pieceColor = piece & Piece.ColorMask;
 
                     if (pieceColor != enemyColor)
+                    {
+                        if (pieceType == Piece.King)
+                            continue;
+
                         break;
+                    }
 
                     if (moveDirectionType == MoveDirectionType.Knight && pieceType == Piece.Knight)
                         return true;
@@ -133,11 +139,6 @@ public partial class Board
         return false;
     }
 
-    private bool IsPawnOfColor(Piece color, Square square)
-    {
-        return this[square] == (Piece.Pawn | color);
-    }
-
     public List<Move> GetLegalMoves()
     {
         var pseudoLegalMoves = new List<Move>();
@@ -153,7 +154,9 @@ public partial class Board
 
         var moves = new List<Move>(pseudoLegalMoves.Count);
         var squaresOfPotentiallyPinnedPieces = GetSquaresOfPotentiallyPinnedPieces();
-        var isCheck = IsCheck(_colorToMove);
+
+        var kingPosition = _kingPositions[_colorToMove.KingPositionIndex()];
+        var isCheck = IsThreatened(kingPosition, _colorToMove);
 
         foreach (var move in pseudoLegalMoves)
         {
@@ -191,31 +194,24 @@ public partial class Board
 
     private bool IsMoveIntoCheck(Move move)
     {
-        bool isCheck;
-
         var currentColor = _colorToMove;
-        var movedPiece = this[move.From];
+        var kingPosition = _kingPositions[currentColor.KingPositionIndex()];
 
         // Handle castling through check
-        if ((movedPiece & Piece.TypeMask) is Piece.King && Math.Abs(move.To - move.From) == 2)
+        if (move.From == kingPosition && Math.Abs(move.To - move.From) == 2)
         {
-            if (IsCheck(currentColor))
+            if (IsThreatened(kingPosition, currentColor))
                 return true;
 
             var inBetweenSquare = (Square)(((int)move.To + (int)move.From) / 2);
-            var inBetweenMove = new Move(
-                from: move.From,
-                to: inBetweenSquare);
 
-            MakeMove(inBetweenMove);
-            isCheck = IsCheck(currentColor);
-            UndoLastMove();
-            if (isCheck)
+            if (IsThreatened(inBetweenSquare, currentColor))
                 return true;
         }
 
         MakeMove(move);
-        isCheck = IsCheck(currentColor);
+        kingPosition = _kingPositions[currentColor.KingPositionIndex()];
+        var isCheck = IsThreatened(kingPosition, currentColor);
         UndoLastMove();
 
         return isCheck;
