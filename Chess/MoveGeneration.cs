@@ -1,4 +1,5 @@
 using Chess.Enums;
+using Chess.Exceptions;
 using Chess.Structs;
 
 namespace Chess;
@@ -73,11 +74,15 @@ public partial class Board
         Piece.Queen
     ];
 
-    public bool IsPlayerToMoveInCheck()
+    public bool IsCheck()
     {
-        var kingPosition = _kingPositions[_colorToMove.KingPositionIndex()];
+        foreach (var square in BoardSquares.All)
+        {
+            if (this[square] == (Piece.King | _colorToMove))
+                return IsThreatened(square, _colorToMove);
+        }
 
-        return IsThreatened(kingPosition, _colorToMove);
+        throw new InvalidBoardException($"No king of color {_colorToMove} found on the board");
     }
 
     private bool IsThreatened(Square square, Piece ownColor)

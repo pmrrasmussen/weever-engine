@@ -72,7 +72,7 @@ public class AlphaBetaSearcher : ISearcher
 
         var legalMoves = position.GetLegalMoves();
         if (legalMoves.Count == 0)
-            return ([], _board.IsPlayerToMoveInCheck() ? bestEvaluation : 0);
+            return ([], _board.IsCheck() ? bestEvaluation : 0);
 
         foreach (var move in legalMoves)
         {
