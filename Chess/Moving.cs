@@ -89,7 +89,7 @@ public partial class Board
 
         var horizontalMoveDelta = move.To - move.From;
 
-        var originalRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.Rank();
+        var originalRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.GetRank();
         var currentRookPosition = (Square)(((int)move.To + (int)move.From) / 2);
 
         this[originalRookPosition] = this[currentRookPosition];
@@ -112,7 +112,7 @@ public partial class Board
     {
         return movedPieceType == Piece.Pawn && Math.Abs(move.To - move.From) == 20
             ? (Square)(((int)move.To + (int)move.From) / 2)
-            : Square.NullSquare;
+            : default;
     }
 
     private void HandleCastlingWhenMakingMove(Move move, Piece movedPieceType)
@@ -122,7 +122,7 @@ public partial class Board
 
         var horizontalMoveDelta = move.To - move.From;
 
-        var currentRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.Rank();
+        var currentRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.GetRank();
         var newRookPosition = (Square)(((int)move.To + (int)move.From) / 2);
 
         EvaluateReplacingPieceOnSquare(newRookPosition, this[currentRookPosition]);

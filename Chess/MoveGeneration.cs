@@ -140,7 +140,7 @@ public partial class Board
     {
         var pseudoLegalMoves = new List<Move>();
 
-        foreach (var square in Squares.All)
+        foreach (var square in BoardSquares.All)
         {
             var piece = this[square];
             if (!piece.HasFlag(_colorToMove))
@@ -247,7 +247,7 @@ public partial class Board
                             break;
 
                         if (Math.Abs(direction) == 20 &&
-                            (fromSquare.Rank() is not (WhiteBackRank + 1 or BlackBackRank - 1) ||
+                            (fromSquare.GetRank() is not (WhiteBackRank + 1 or BlackBackRank - 1) ||
                              this[fromSquare + direction/2] != Piece.Empty))
                             break;
                     }
@@ -259,7 +259,7 @@ public partial class Board
                     }
 
                     // Promotion
-                    if (currentSquare.Rank() is WhiteBackRank or BlackBackRank)
+                    if (currentSquare.GetRank() is WhiteBackRank or BlackBackRank)
                     {
                         foreach (var promotionPieceType in PromotionPieceTypes)
                         {

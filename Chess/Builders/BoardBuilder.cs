@@ -50,7 +50,7 @@ public static class BoardBuilder
         board.CastlingPrivileges = GetCastlingPrivilegesFromFen(castlingPrivileges);
         board.EnPassantAttackSquare = GetEnPassantAttackSquareFromFen(enPassantSquare);
 
-        board.UpdateKingPositions();
+        board.SetKingPositions();
         board.RecomputeEvaluation();
 
         return board;
@@ -105,7 +105,7 @@ public static class BoardBuilder
     private static Square GetEnPassantAttackSquareFromFen(string fenEnPassantSquare)
     {
         return fenEnPassantSquare.Equals("-", StringComparison.OrdinalIgnoreCase)
-            ? Square.NullSquare
+            ? default
             : fenEnPassantSquare.ToSquare();
     }
 }

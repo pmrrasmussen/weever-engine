@@ -8,7 +8,6 @@ namespace Engine;
 public class GreedySearcher : ISearcher
 {
     private Board _board = BoardBuilder.GetDefaultStartingPosition();
-    private Random _random = new Random();
 
     public void SetPosition(string fen, IEnumerable<Move> moves)
     {
