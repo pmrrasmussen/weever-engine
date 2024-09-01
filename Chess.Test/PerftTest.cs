@@ -814,7 +814,6 @@ public class PerftTest
         // Arrange
         var board = BoardBuilder.FromFen(fen);
         board.RecomputeEvaluation();
-        _testOutputHelper.WriteLine(board.GetEvaluation().ToString());
         _testOutputHelper.WriteLine(board.ToString());
 
         // Act
