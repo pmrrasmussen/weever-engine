@@ -22,23 +22,29 @@ public partial class Board
         }
     }
 
+    public Piece this[Square square]
+    {
+        get => _pieces[(int)square];
+        set => _pieces[(int)square] = value;
+    }
+
     public bool WhiteToMove => _colorToMove == Piece.White;
 
-    public Board Clone()
+    public override string ToString()
     {
-        var newBoard = new Board
+        var stringRepresentation = new StringBuilder();
+        for (int y = 7; y >= 0; y--)
         {
-            _colorToMove = _colorToMove,
-            _castlingPrivileges = _castlingPrivileges,
-            _kingPositions = _kingPositions.ToArray(),
-            _enPassantAttackSquare = _enPassantAttackSquare,
-            _moveHistory = new(_moveHistory.Reverse())
-        };
+            for (int x = 0; x < 8; x++)
+            {
+                var square = (x + 1) + (y + 2) * 10;
+                stringRepresentation.Append(_pieces[square].ToBoardString());
+            }
 
-        foreach (var square in BoardSquares.All)
-                newBoard[square] = this[square];
+            stringRepresentation.Append('\n');
+        }
 
-        return newBoard;
+        return stringRepresentation.ToString();
     }
 
     public bool Equals(Board otherBoard)
@@ -55,10 +61,21 @@ public partial class Board
                otherBoard._enPassantAttackSquare.Equals(_enPassantAttackSquare);
     }
 
-    public Piece this[Square square]
+    public Board Clone()
     {
-        get => _pieces[(int)square];
-        set => _pieces[(int)square] = value;
+        var newBoard = new Board
+        {
+            _colorToMove = _colorToMove,
+            _castlingPrivileges = _castlingPrivileges,
+            _kingPositions = _kingPositions.ToArray(),
+            _enPassantAttackSquare = _enPassantAttackSquare,
+            _moveHistory = new(_moveHistory.Reverse())
+        };
+
+        foreach (var square in BoardSquares.All)
+                newBoard[square] = this[square];
+
+        return newBoard;
     }
 
     internal CastlingPrivileges CastlingPrivileges
@@ -88,22 +105,5 @@ public partial class Board
 
             _kingPositions[this[square].KingPositionIndex()] = square;
         }
-    }
-
-    public override string ToString()
-    {
-        var stringRepresentation = new StringBuilder();
-        for (int y = 7; y >= 0; y--)
-        {
-            for (int x = 0; x < 8; x++)
-            {
-                var square = (x + 1) + (y + 2) * 10;
-                stringRepresentation.Append(_pieces[square].ToBoardString());
-            }
-
-            stringRepresentation.Append('\n');
-        }
-
-        return stringRepresentation.ToString();
     }
 }
