@@ -80,11 +80,12 @@ public partial class Board
 
     private bool IsCheck(Piece color)
     {
-        var forwardsDirection = color is Piece.White ? Up : Down;
+        var enemyColor = color ^ Piece.ColorMask;
+        var enemyForwardDirection = enemyColor is Piece.White ? Up : Down;
         var kingPosition = _kingPositions[color.KingPositionIndex()];
 
-        if (IsOppositeColouredPawn(color, kingPosition + forwardsDirection + Right) ||
-            IsOppositeColouredPawn(color, kingPosition + forwardsDirection + Left))
+        if (this[kingPosition - (enemyForwardDirection + Right)] == (Piece.Pawn | enemyColor) ||
+            this[kingPosition - (enemyForwardDirection + Left)] == (Piece.Pawn | enemyColor))
             return true;
 
         foreach (var moveDirectionType in MoveDirectionTypes)
@@ -105,10 +106,11 @@ public partial class Board
                         continue;
                     }
 
-                    if (piece.HasFlag(color))
-                        break;
-
                     var pieceType = piece & Piece.TypeMask;
+                    var pieceColor = piece & Piece.ColorMask;
+
+                    if (pieceColor != enemyColor)
+                        break;
 
                     if (moveDirectionType == MoveDirectionType.Knight && pieceType == Piece.Knight)
                         return true;
@@ -131,9 +133,9 @@ public partial class Board
         return false;
     }
 
-    private bool IsOppositeColouredPawn(Piece color, Square square)
+    private bool IsPawnOfColor(Piece color, Square square)
     {
-        return (this[square] | color) == (Piece.Pawn | Piece.ColorMask);
+        return this[square] == (Piece.Pawn | color);
     }
 
     public List<Move> GetLegalMoves()
