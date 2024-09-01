@@ -150,23 +150,24 @@ public partial class Board
         }
 
         var moves = new List<Move>(pseudoLegalMoves.Count);
-        var fromSquaresToWatch = FromSquaresToWatchForChecks();
+        var squaresOfPotentiallyPinnedPieces = GetSquaresOfPotentiallyPinnedPieces();
         var isCheck = IsCheck(_colorToMove);
 
         foreach (var move in pseudoLegalMoves)
         {
-            if ((isCheck ||
-                fromSquaresToWatch.Contains(move.From) ||
-                move.To == _enPassantAttackSquare) &&
-                MovesIntoCheck(move))
-                continue;
-            moves.Add(move);
+            var mustCheckMoveLegality =
+                isCheck ||
+                squaresOfPotentiallyPinnedPieces.Contains(move.From) ||
+                move.To == _enPassantAttackSquare;
+
+            if (!mustCheckMoveLegality || !IsMoveIntoCheck(move))
+                moves.Add(move);
         }
 
         return moves;
     }
 
-    private List<Square> FromSquaresToWatchForChecks()
+    private List<Square> GetSquaresOfPotentiallyPinnedPieces()
     {
         var kingSquare = _kingPositions[_colorToMove.KingPositionIndex()];
         List<Square> watchSquares = [ kingSquare ];
@@ -186,7 +187,7 @@ public partial class Board
         return watchSquares;
     }
 
-    private bool MovesIntoCheck(Move move)
+    private bool IsMoveIntoCheck(Move move)
     {
         bool isCheck;
 
