@@ -9,14 +9,14 @@ public partial class Board
     private readonly Piece[] _pieces;
     private Stack<BoardMoveDelta> _moveHistory = new();
     private Piece _colorToMove = Piece.White;
-    private Square _enPassantAttackSquare = Square.NullSquare;
+    private Square _enPassantAttackSquare;
     private CastlingPrivileges _castlingPrivileges = CastlingPrivileges.All;
-    private Square[] _kingPositions = [ Square.NullSquare, Square.NullSquare ];
+    private Square[] _kingPositions = [ default, default ];
 
     public Board()
     {
         _pieces = Enumerable.Repeat(Piece.OutOfBounds, 120).ToArray();
-        foreach (var square in Squares.All)
+        foreach (var square in BoardSquares.All)
         {
             this[square] = Piece.Empty;
         }
@@ -35,7 +35,7 @@ public partial class Board
             _moveHistory = new(_moveHistory.Reverse())
         };
 
-        foreach (var square in Squares.All)
+        foreach (var square in BoardSquares.All)
                 newBoard[square] = this[square];
 
         return newBoard;
@@ -43,24 +43,13 @@ public partial class Board
 
     public bool Equals(Board otherBoard)
     {
-        foreach (var square in Squares.All)
-            if (!(otherBoard[square].Equals(this[square])))
-                return false;
-
-        return otherBoard._colorToMove == _colorToMove &&
-               otherBoard._kingPositions.SequenceEqual(_kingPositions) &&
-               otherBoard._castlingPrivileges.Equals(_castlingPrivileges) &&
-               otherBoard._enPassantAttackSquare.Equals(_enPassantAttackSquare) &&
-               otherBoard._moveHistory.SequenceEqual(_moveHistory);
+        return HistoryAgnosticEquals(otherBoard) && otherBoard._moveHistory.SequenceEqual(_moveHistory);
     }
 
     public bool HistoryAgnosticEquals(Board otherBoard)
     {
-        foreach (var square in Squares.All)
-                if (!(otherBoard[square].Equals(this[square])))
-                    return false;
-
-        return otherBoard._colorToMove == _colorToMove &&
+        return BoardSquares.All.All(square => otherBoard[square] == this[square]) &&
+               otherBoard._colorToMove == _colorToMove &&
                otherBoard._kingPositions.SequenceEqual(_kingPositions) &&
                otherBoard._castlingPrivileges.Equals(_castlingPrivileges) &&
                otherBoard._enPassantAttackSquare.Equals(_enPassantAttackSquare);
@@ -90,9 +79,9 @@ public partial class Board
         set => _colorToMove = value;
     }
 
-    internal void UpdateKingPositions()
+    internal void SetKingPositions()
     {
-        foreach (var square in Squares.All)
+        foreach (var square in BoardSquares.All)
         {
             if ((this[square] & Piece.TypeMask) is not Piece.King)
                 continue;
@@ -109,7 +98,7 @@ public partial class Board
             for (int x = 0; x < 8; x++)
             {
                 var square = (x + 1) + (y + 2) * 10;
-                stringRepresentation.Append(_pieces[square].AsString());
+                stringRepresentation.Append(_pieces[square].ToBoardString());
             }
 
             stringRepresentation.Append('\n');
