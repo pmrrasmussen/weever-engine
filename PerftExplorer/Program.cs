@@ -30,7 +30,7 @@ public static class Program
             board.MakeMove(move);
             var nodeCount = GetNodeCount(board, depth - 1);
             board.UndoLastMove();
-            Console.WriteLine($"{move.ToString().ToLower()} {nodeCount}");
+            Console.WriteLine($"{move} {nodeCount}");
 
             total += nodeCount;
         }

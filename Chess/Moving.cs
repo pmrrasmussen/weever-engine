@@ -53,8 +53,8 @@ public partial class Board
 
         var lastMove = moveDelta.Move;
 
-        HandleUndoEnPassant(lastMove, movedPieceType);
-        HandleUndoCastling(lastMove, movedPieceType);
+        UndoEnPassant(lastMove, movedPieceType);
+        UndoCastling(lastMove, movedPieceType);
 
         this[lastMove.From] = moveDelta.Move.PromotionTo == Piece.Empty
             ? movedPiece
@@ -62,7 +62,7 @@ public partial class Board
         this[lastMove.To] = moveDelta.DirectlyCapturedPiece;
     }
 
-    private void HandleUndoEnPassant(Move move, Piece movedPieceType)
+    private void UndoEnPassant(Move move, Piece movedPieceType)
     {
         if ( movedPieceType != Piece.Pawn || move.To != _enPassantAttackSquare)
             return;
@@ -71,7 +71,7 @@ public partial class Board
         this[_enPassantAttackSquare + moveDirectionForOtherColor] = Piece.Pawn ^ _colorToMove ^ Piece.ColorMask;
     }
 
-    private void HandleUndoCastling(Move move, Piece movedPieceType)
+    private void UndoCastling(Move move, Piece movedPieceType)
     {
         var moveDelta = move.To - move.From;
 
