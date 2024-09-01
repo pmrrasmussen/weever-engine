@@ -147,7 +147,7 @@ public partial class Board
     public List<Move> GetLegalMoves()
     {
         var pseudoLegalMoves = new List<Move>();
-        Square kingSquare = default;
+        Square kingPosition = default;
 
         foreach (var square in BoardSquares.All)
         {
@@ -158,7 +158,7 @@ public partial class Board
                 continue;
 
             if (pieceType == Piece.King)
-                kingSquare = square;
+                kingPosition = square;
 
             AddPseudoLegalPieceMoves(
                 pieceType: pieceType,
@@ -168,9 +168,9 @@ public partial class Board
         }
 
         var moves = new List<Move>(pseudoLegalMoves.Count);
-        var squaresOfPotentiallyPinnedPieces = GetSquaresOfPotentiallyPinnedPieces(kingSquare);
+        var squaresOfPotentiallyPinnedPieces = GetSquaresOfPotentiallyPinnedPieces(kingPosition);
 
-        var isCheck = IsThreatened(kingSquare, _colorToMove);
+        var isCheck = IsThreatened(kingPosition, _colorToMove);
 
         foreach (var move in pseudoLegalMoves)
         {
@@ -179,7 +179,7 @@ public partial class Board
                 squaresOfPotentiallyPinnedPieces.Contains(move.From) ||
                 move.To == _enPassantAttackSquare;
 
-            if (!mustCheckMoveLegality || !IsMoveIntoCheck(move))
+            if (!mustCheckMoveLegality || !IsMoveIntoCheck(move, kingPosition))
                 moves.Add(move);
         }
 
@@ -205,29 +205,33 @@ public partial class Board
         return watchSquares;
     }
 
-    private bool IsMoveIntoCheck(Move move)
+    private bool IsMoveIntoCheck(Move move, Square kingPosition)
     {
         var currentColor = _colorToMove;
-        var kingPosition = _kingPositions[currentColor.KingPositionIndex()];
+        bool isCheck;
 
-        // Handle castling through check
-        if (move.From == kingPosition && Math.Abs(move.To - move.From) == 2)
+        // Check for moves that are not with the king
+        if (move.From != kingPosition)
         {
-            if (IsThreatened(kingPosition, currentColor))
-                return true;
+            MakeMove(move);
+            isCheck = IsThreatened(kingPosition, currentColor);
+            UndoLastMove();
 
-            var inBetweenSquare = (Square)(((int)move.To + (int)move.From) / 2);
-
-            if (IsThreatened(inBetweenSquare, currentColor))
-                return true;
+            return isCheck;
         }
 
-        MakeMove(move);
-        kingPosition = _kingPositions[currentColor.KingPositionIndex()];
-        var isCheck = IsThreatened(kingPosition, currentColor);
-        UndoLastMove();
+        // See if king is moving into check
+        if (IsThreatened(move.To, currentColor))
+            return true;
 
-        return isCheck;
+        // If not castling, we are good
+        if (Math.Abs(move.To - move.From) != 2)
+            return false;
+
+        // Check castling through check
+        var castlingThroughSquare = (Square)(((int)move.To + (int)move.From) / 2);
+
+        return IsThreatened(castlingThroughSquare, currentColor) || IsThreatened(kingPosition, currentColor);
     }
 
     private void AddPseudoLegalPieceMoves(
