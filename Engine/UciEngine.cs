@@ -104,7 +104,7 @@ public class UciEngine(
 
     private void BestMove(Move bestMove)
     {
-        output.WriteLine($"bestmove {bestMove.ToString().ToLower()}");
+        output.WriteLine($"bestmove {bestMove}");
     }
 
     private void ResetEngine()

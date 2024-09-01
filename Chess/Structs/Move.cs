@@ -26,7 +26,7 @@ public readonly struct Move(
             _ => throw new InvalidMoveException($"Invalid promotion type for move: {PromotionTo}")
         };
 
-        return $"{From}{To}{promotionString}";
+        return $"{From}{To}{promotionString}".ToLower();
     }
 }
 

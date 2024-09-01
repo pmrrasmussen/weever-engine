@@ -23,7 +23,7 @@ public class MateTest
 
         // Assert
         Assert.Equal(AlphaBetaSearcher.CheckMateScore, bestEvaluation);
-        Assert.Equal(move.ToMove(), bestMove);
+        Assert.Equal(move, bestMove.ToString());
     }
 
     [Theory]
@@ -45,7 +45,7 @@ public class MateTest
 
         // Assert
         Assert.Equal(AlphaBetaSearcher.CheckMateScore+3, bestEvaluation);
-        Assert.Equal(move.ToMove(), bestMove);
+        Assert.Equal(move, bestMove.ToString());
     }
 
     [Theory]
