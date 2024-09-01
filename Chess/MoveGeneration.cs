@@ -208,13 +208,12 @@ public partial class Board
     private bool IsMoveIntoCheck(Move move, Square kingPosition)
     {
         var currentColor = _colorToMove;
-        bool isCheck;
 
         // Check for moves that are not with the king
         if (move.From != kingPosition)
         {
             MakeMove(move);
-            isCheck = IsThreatened(kingPosition, currentColor);
+            var isCheck = IsThreatened(kingPosition, currentColor);
             UndoLastMove();
 
             return isCheck;
@@ -304,9 +303,9 @@ public partial class Board
                 if (pieceType is not Piece.Rook)
                     continue;
 
-                switch (currentPosition: currentSquare, square: fromSquare, pieceColor: pieceColor)
+                switch (currentPosition: currentSquare, square: fromSquare, pieceColor)
                 {
-                    case (Square.D1, Square.A1, Piece.White) when _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteQueenSide):
+                    case (Square.D1, Square.A1, pieceColor: Piece.White) when _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteQueenSide):
                         moves.Add(new Move(Square.E1, Square.C1));
                         break;
                     case (Square.F1, Square.H1, Piece.White) when _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteKingSide):

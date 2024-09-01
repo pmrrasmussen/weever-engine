@@ -34,11 +34,6 @@ public partial class Board
         this[move.From] = Piece.Empty;
         this[move.To] = pieceToPlace;
 
-        if (movedPieceType is Piece.King)
-        {
-            _kingPositions[_colorToMove.KingPositionIndex()] = move.To;
-        }
-
         _colorToMove ^= Piece.ColorMask;
     }
 
@@ -65,11 +60,6 @@ public partial class Board
             ? movedPiece
             : Piece.Pawn | _colorToMove;
         this[lastMove.To] = moveDelta.DirectlyCapturedPiece;
-
-        if (movedPieceType == Piece.King)
-        {
-            _kingPositions[_colorToMove.KingPositionIndex()] = lastMove.From;
-        }
     }
 
     private void HandleUndoEnPassant(Move move, Piece movedPieceType)

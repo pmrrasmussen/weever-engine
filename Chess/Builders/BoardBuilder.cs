@@ -50,7 +50,6 @@ public static class BoardBuilder
         board.CastlingPrivileges = GetCastlingPrivilegesFromFen(castlingPrivileges);
         board.EnPassantAttackSquare = GetEnPassantAttackSquareFromFen(enPassantSquare);
 
-        board.SetKingPositions();
         board.RecomputeEvaluation();
 
         return board;

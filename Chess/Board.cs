@@ -11,7 +11,6 @@ public partial class Board
     private Piece _colorToMove = Piece.White;
     private Square _enPassantAttackSquare;
     private CastlingPrivileges _castlingPrivileges = CastlingPrivileges.All;
-    private Square[] _kingPositions = [ default, default ];
 
     public Board()
     {
@@ -56,7 +55,6 @@ public partial class Board
     {
         return BoardSquares.All.All(square => otherBoard[square] == this[square]) &&
                otherBoard._colorToMove == _colorToMove &&
-               otherBoard._kingPositions.SequenceEqual(_kingPositions) &&
                otherBoard._castlingPrivileges.Equals(_castlingPrivileges) &&
                otherBoard._enPassantAttackSquare.Equals(_enPassantAttackSquare);
     }
@@ -67,7 +65,6 @@ public partial class Board
         {
             _colorToMove = _colorToMove,
             _castlingPrivileges = _castlingPrivileges,
-            _kingPositions = _kingPositions.ToArray(),
             _enPassantAttackSquare = _enPassantAttackSquare,
             _moveHistory = new(_moveHistory.Reverse())
         };
@@ -94,16 +91,5 @@ public partial class Board
     {
         get => _colorToMove;
         set => _colorToMove = value;
-    }
-
-    internal void SetKingPositions()
-    {
-        foreach (var square in BoardSquares.All)
-        {
-            if ((this[square] & Piece.TypeMask) is not Piece.King)
-                continue;
-
-            _kingPositions[this[square].KingPositionIndex()] = square;
-        }
     }
 }
