@@ -147,21 +147,30 @@ public partial class Board
     public List<Move> GetLegalMoves()
     {
         var pseudoLegalMoves = new List<Move>();
+        Square kingSquare = default;
 
         foreach (var square in BoardSquares.All)
         {
             var piece = this[square];
-            if (!piece.HasFlag(_colorToMove))
+            var (pieceType, pieceColor) = (piece & Piece.TypeMask, piece & Piece.ColorMask);
+
+            if (pieceColor != _colorToMove)
                 continue;
 
-            AddPseudoLegalPieceMoves(piece, square, pseudoLegalMoves);
+            if (pieceType == Piece.King)
+                kingSquare = square;
+
+            AddPseudoLegalPieceMoves(
+                pieceType: pieceType,
+                pieceColor: pieceColor,
+                fromSquare: square,
+                moves: pseudoLegalMoves);
         }
 
         var moves = new List<Move>(pseudoLegalMoves.Count);
-        var squaresOfPotentiallyPinnedPieces = GetSquaresOfPotentiallyPinnedPieces();
+        var squaresOfPotentiallyPinnedPieces = GetSquaresOfPotentiallyPinnedPieces(kingSquare);
 
-        var kingPosition = _kingPositions[_colorToMove.KingPositionIndex()];
-        var isCheck = IsThreatened(kingPosition, _colorToMove);
+        var isCheck = IsThreatened(kingSquare, _colorToMove);
 
         foreach (var move in pseudoLegalMoves)
         {
@@ -177,9 +186,8 @@ public partial class Board
         return moves;
     }
 
-    private List<Square> GetSquaresOfPotentiallyPinnedPieces()
+    private List<Square> GetSquaresOfPotentiallyPinnedPieces(Square kingSquare)
     {
-        var kingSquare = _kingPositions[_colorToMove.KingPositionIndex()];
         List<Square> watchSquares = [ kingSquare ];
 
         foreach (var direction in QueenMoveDirections)
@@ -222,12 +230,13 @@ public partial class Board
         return isCheck;
     }
 
-    private void AddPseudoLegalPieceMoves(Piece movedPiece, Square fromSquare, List<Move> moves)
+    private void AddPseudoLegalPieceMoves(
+        Piece pieceType,
+        Piece pieceColor,
+        Square fromSquare,
+        List<Move> moves)
     {
-        var movedPieceType = movedPiece & Piece.TypeMask;
-        var movedPieceColor = movedPiece & Piece.ColorMask;
-
-        var index = movedPiece == Piece.WhitePawn ? 6 : (int)movedPieceType;
+        var index = pieceType == Piece.Pawn && pieceColor == Piece.White ? 6 : (int)pieceType;
         var directions = MoveDirections[index];
 
         foreach (var direction in directions)
@@ -239,10 +248,10 @@ public partial class Board
                 var moveIsCapture = pieceAtCurrentSquare != Piece.Empty;
 
                 // Stop if we hit our own piece
-                if (moveIsCapture && pieceAtCurrentSquare.HasFlag(movedPieceColor))
+                if (moveIsCapture && pieceAtCurrentSquare.HasFlag(pieceColor))
                     break;
 
-                if (movedPieceType is Piece.Pawn)
+                if (pieceType is Piece.Pawn)
                 {
                     // Forward moves
                     if (direction % 10 == 0)
@@ -267,7 +276,7 @@ public partial class Board
                     {
                         foreach (var promotionPieceType in PromotionPieceTypes)
                         {
-                            var promoteTo = promotionPieceType | movedPieceColor;
+                            var promoteTo = promotionPieceType | pieceColor;
                             moves.Add(new Move(
                                 from: fromSquare,
                                 to: currentSquare,
@@ -283,15 +292,15 @@ public partial class Board
                     to: currentSquare));
 
                 // Stop if the piece doesn't slide or we performed a capture
-                if (movedPieceType is Piece.Pawn or Piece.Knight or Piece.King ||
+                if (pieceType is Piece.Pawn or Piece.Knight or Piece.King ||
                     moveIsCapture)
                     break;
 
                 // Add castling moves when a rook slides next to the king
-                if (movedPieceType is not Piece.Rook)
+                if (pieceType is not Piece.Rook)
                     continue;
 
-                switch (currentPosition: currentSquare, square: fromSquare, pieceColor: movedPieceColor)
+                switch (currentPosition: currentSquare, square: fromSquare, pieceColor: pieceColor)
                 {
                     case (Square.D1, Square.A1, Piece.White) when _castlingPrivileges.HasFlag(CastlingPrivileges.WhiteQueenSide):
                         moves.Add(new Move(Square.E1, Square.C1));
