@@ -73,13 +73,13 @@ public partial class Board
 
     private void HandleUndoCastling(Move move, Piece movedPieceType)
     {
+        var moveDelta = move.To - move.From;
+
         if (movedPieceType != Piece.King ||
-            Math.Abs(move.From-move.To) != 2)
+            Math.Abs(moveDelta) != 2)
             return;
 
-        var horizontalMoveDelta = move.To - move.From;
-
-        var originalRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.GetRank();
+        var originalRookPosition = (Square)(moveDelta > 0 ? 8 : 1) + 10 * move.From.GetRank();
         var currentRookPosition = (Square)(((int)move.To + (int)move.From) / 2);
 
         this[originalRookPosition] = this[currentRookPosition];

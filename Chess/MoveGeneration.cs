@@ -79,15 +79,18 @@ public partial class Board
         foreach (var square in BoardSquares.All)
         {
             if (this[square] == (Piece.King | _colorToMove))
-                return IsThreatened(square, _colorToMove);
+            {
+                return IsThreatened(
+                    square: square,
+                    enemyColor: _colorToMove ^ Piece.ColorMask);
+            }
         }
 
         throw new InvalidBoardException($"No king of color {_colorToMove} found on the board");
     }
 
-    private bool IsThreatened(Square square, Piece ownColor)
+    private bool IsThreatened(Square square, Piece enemyColor)
     {
-        var enemyColor = ownColor ^ Piece.ColorMask;
         var enemyForwardDirection = enemyColor is Piece.White ? Up : Down;
 
         if (this[square - (enemyForwardDirection + Right)] == (Piece.Pawn | enemyColor) ||
@@ -170,7 +173,9 @@ public partial class Board
         var moves = new List<Move>(pseudoLegalMoves.Count);
         var squaresOfPotentiallyPinnedPieces = GetSquaresOfPotentiallyPinnedPieces(kingPosition);
 
-        var isCheck = IsThreatened(kingPosition, _colorToMove);
+        var isCheck = IsThreatened(
+            square: kingPosition,
+            enemyColor: _colorToMove ^ Piece.ColorMask);
 
         foreach (var move in pseudoLegalMoves)
         {
@@ -207,20 +212,20 @@ public partial class Board
 
     private bool IsMoveIntoCheck(Move move, Square kingPosition)
     {
-        var currentColor = _colorToMove;
+        var enemyColor = _colorToMove ^ Piece.ColorMask;
 
         // Check for moves that are not with the king
         if (move.From != kingPosition)
         {
             MakeMove(move);
-            var isCheck = IsThreatened(kingPosition, currentColor);
+            var isCheck = IsThreatened(kingPosition, enemyColor);
             UndoLastMove();
 
             return isCheck;
         }
 
         // See if king is moving into check
-        if (IsThreatened(move.To, currentColor))
+        if (IsThreatened(move.To, enemyColor))
             return true;
 
         // If not castling, we are good
@@ -230,7 +235,7 @@ public partial class Board
         // Check castling through check
         var castlingThroughSquare = (Square)(((int)move.To + (int)move.From) / 2);
 
-        return IsThreatened(castlingThroughSquare, currentColor) || IsThreatened(kingPosition, currentColor);
+        return IsThreatened(castlingThroughSquare, enemyColor) || IsThreatened(kingPosition, enemyColor);
     }
 
     private void AddPseudoLegalPieceMoves(
