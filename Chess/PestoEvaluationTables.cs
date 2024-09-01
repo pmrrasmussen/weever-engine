@@ -2,7 +2,7 @@ using Chess.Enums;
 
 namespace Chess;
 
-public static class PeSTO
+public static class PestoEvaluationTables
 {
     // Piece square tables from the PeSTO evaluation function.
     // See https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function

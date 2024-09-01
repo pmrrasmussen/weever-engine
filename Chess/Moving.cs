@@ -34,11 +34,6 @@ public partial class Board
         this[move.From] = Piece.Empty;
         this[move.To] = pieceToPlace;
 
-        if (movedPieceType is Piece.King)
-        {
-            _kingPositions[_colorToMove.KingPositionIndex()] = move.To;
-        }
-
         _colorToMove ^= Piece.ColorMask;
     }
 
@@ -65,11 +60,6 @@ public partial class Board
             ? movedPiece
             : Piece.Pawn | _colorToMove;
         this[lastMove.To] = moveDelta.DirectlyCapturedPiece;
-
-        if (movedPieceType == Piece.King)
-        {
-            _kingPositions[_colorToMove.KingPositionIndex()] = lastMove.From;
-        }
     }
 
     private void HandleUndoEnPassant(Move move, Piece movedPieceType)
@@ -83,13 +73,13 @@ public partial class Board
 
     private void HandleUndoCastling(Move move, Piece movedPieceType)
     {
+        var moveDelta = move.To - move.From;
+
         if (movedPieceType != Piece.King ||
-            Math.Abs(move.From-move.To) != 2)
+            Math.Abs(moveDelta) != 2)
             return;
 
-        var horizontalMoveDelta = move.To - move.From;
-
-        var originalRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.Rank();
+        var originalRookPosition = (Square)(moveDelta > 0 ? 8 : 1) + 10 * move.From.GetRank();
         var currentRookPosition = (Square)(((int)move.To + (int)move.From) / 2);
 
         this[originalRookPosition] = this[currentRookPosition];
@@ -112,7 +102,7 @@ public partial class Board
     {
         return movedPieceType == Piece.Pawn && Math.Abs(move.To - move.From) == 20
             ? (Square)(((int)move.To + (int)move.From) / 2)
-            : Square.NullSquare;
+            : default;
     }
 
     private void HandleCastlingWhenMakingMove(Move move, Piece movedPieceType)
@@ -122,7 +112,7 @@ public partial class Board
 
         var horizontalMoveDelta = move.To - move.From;
 
-        var currentRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.Rank();
+        var currentRookPosition = (Square)(horizontalMoveDelta > 0 ? 8 : 1) + 10 * move.From.GetRank();
         var newRookPosition = (Square)(((int)move.To + (int)move.From) / 2);
 
         EvaluateReplacingPieceOnSquare(newRookPosition, this[currentRookPosition]);

@@ -1,3 +1,5 @@
+using Chess.Structs;
+
 namespace Engine.Test;
 
 public class MateTest
@@ -17,10 +19,11 @@ public class MateTest
         sut.SetPosition(fen, []);
 
         // Act
-        var (_, bestEvaluation) = sut.Search(1000, CancellationToken.None);
+        var (bestMove, bestEvaluation) = sut.Search(1000, CancellationToken.None);
 
         // Assert
         Assert.Equal(AlphaBetaSearcher.CheckMateScore, bestEvaluation);
+        Assert.Equal(move.ToMove(), bestMove);
     }
 
     [Theory]
@@ -38,10 +41,11 @@ public class MateTest
         sut.SetPosition(fen, []);
 
         // Act
-        var (_, bestEvaluation) = sut.Search(1000, CancellationToken.None);
+        var (bestMove, bestEvaluation) = sut.Search(1000, CancellationToken.None);
 
         // Assert
         Assert.Equal(AlphaBetaSearcher.CheckMateScore+3, bestEvaluation);
+        Assert.Equal(move.ToMove(), bestMove);
     }
 
     [Theory]

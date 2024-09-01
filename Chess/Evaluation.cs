@@ -12,11 +12,11 @@ public partial class Board
 
     public int GetEvaluation()
     {
-        var middleGamePhase = Math.Min(PeSTO.MaximumGamePhase, _gamePhase);
-        var endGamePhase = PeSTO.MaximumGamePhase - middleGamePhase;
+        var middleGamePhase = Math.Min(PestoEvaluationTables.MaximumGamePhase, _gamePhase);
+        var endGamePhase = PestoEvaluationTables.MaximumGamePhase - middleGamePhase;
         var colorMultiplier = WhiteToMove ? 1 : -1;
 
-        return colorMultiplier * (middleGamePhase * _middlegameEvaluation + endGamePhase * _endgameEvaluation)/PeSTO.MaximumGamePhase;
+        return colorMultiplier * (middleGamePhase * _middlegameEvaluation + endGamePhase * _endgameEvaluation)/PestoEvaluationTables.MaximumGamePhase;
     }
 
     public void RecomputeEvaluation()
@@ -25,15 +25,15 @@ public partial class Board
         _endgameEvaluation = 0;
         _gamePhase = 0;
 
-        foreach (var square in Squares.All)
+        foreach (var square in BoardSquares.All)
         {
             var piece = this[square];
             if (piece == Piece.Empty)
                 continue;
 
-            _middlegameEvaluation -= PeSTO.MiddlegameTables[(int)piece][(int)square];
-            _endgameEvaluation -= PeSTO.EndgameTables[(int)piece][(int)square];
-            _gamePhase += PeSTO.GamePhaseTable[(int)(piece & Piece.TypeMask)];
+            _middlegameEvaluation -= PestoEvaluationTables.MiddlegameTables[(int)piece][(int)square];
+            _endgameEvaluation -= PestoEvaluationTables.EndgameTables[(int)piece][(int)square];
+            _gamePhase += PestoEvaluationTables.GamePhaseTable[(int)(piece & Piece.TypeMask)];
         }
     }
 
@@ -43,14 +43,14 @@ public partial class Board
         var originalPiece = this[square];
         if (originalPiece != Piece.Empty)
         {
-            _middlegameEvaluation -= PeSTO.MiddlegameTables[(int)originalPiece][(int)square];
-            _endgameEvaluation -= PeSTO.EndgameTables[(int)originalPiece][(int)square];
+            _middlegameEvaluation -= PestoEvaluationTables.MiddlegameTables[(int)originalPiece][(int)square];
+            _endgameEvaluation -= PestoEvaluationTables.EndgameTables[(int)originalPiece][(int)square];
         }
 
         if (newPiece != Piece.Empty)
         {
-            _middlegameEvaluation += PeSTO.MiddlegameTables[(int)newPiece][(int)square];
-            _endgameEvaluation += PeSTO.EndgameTables[(int)newPiece][(int)square];
+            _middlegameEvaluation += PestoEvaluationTables.MiddlegameTables[(int)newPiece][(int)square];
+            _endgameEvaluation += PestoEvaluationTables.EndgameTables[(int)newPiece][(int)square];
         }
 #endif
     }
@@ -60,12 +60,12 @@ public partial class Board
 #if Evaluation
         if (this[moveTo] != Piece.Empty)
         {
-            _gamePhase -= PeSTO.GamePhaseTable[(int)(this[moveTo] & Piece.TypeMask)];
+            _gamePhase -= PestoEvaluationTables.GamePhaseTable[(int)(this[moveTo] & Piece.TypeMask)];
         }
 
         if (movedPiece != placedPiece)
         {
-            _gamePhase += PeSTO.GamePhaseTable[(int)(placedPiece & Piece.TypeMask)] - PeSTO.GamePhaseTable[(int)(movedPiece & Piece.TypeMask)];
+            _gamePhase += PestoEvaluationTables.GamePhaseTable[(int)(placedPiece & Piece.TypeMask)] - PestoEvaluationTables.GamePhaseTable[(int)(movedPiece & Piece.TypeMask)];
         }
 #endif
     }

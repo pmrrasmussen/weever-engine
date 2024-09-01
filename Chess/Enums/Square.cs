@@ -12,13 +12,11 @@ public enum Square
     A3 = 41, B3 = 42, C3 = 43, D3 = 44, E3 = 45, F3 = 46, G3 = 47, H3 = 48,
     A2 = 31, B2 = 32, C2 = 33, D2 = 34, E2 = 35, F2 = 36, G2 = 37, H2 = 38,
     A1 = 21, B1 = 22, C1 = 23, D1 = 24, E1 = 25, F1 = 26, G1 = 27, H1 = 28,
-
-    NullSquare = 0,
 }
 
 public static class SquareExtensions
 {
-    public static int Rank(this Square square)
+    public static int GetRank(this Square square)
         => (int)square / 10;
 
     public static Square ToSquare(this string square)
@@ -44,31 +42,11 @@ public static class SquareExtensions
 
         return (Square)x + (y + 1) * 10;
     }
-
-    public static string ToString(this Square square)
-    {
-        var column = ((int)square % 10) switch
-        {
-            1 => "A",
-            2 => "B",
-            3 => "C",
-            4 => "D",
-            5 => "E",
-            6 => "F",
-            7 => "G",
-            8 => "H",
-            _ => throw new ArgumentOutOfRangeException(),
-        };
-
-        var row = ((int)square/10 - 1).ToString();
-
-        return column + row;
-    }
 }
 
-public static class Squares
+public static class BoardSquares
 {
-    public static Square[] All =
+    public static readonly Square[] All =
     [
         Square.A1, Square.A2, Square.A3, Square.A4, Square.A5, Square.A6, Square.A7, Square.A8,
         Square.B1, Square.B2, Square.B3, Square.B4, Square.B5, Square.B6, Square.B7, Square.B8,

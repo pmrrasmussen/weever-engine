@@ -18,7 +18,7 @@ public readonly struct Move(
     {
         var promotionString = PromotionTo switch
         {
-            Piece.Empty                                               => "",
+            Piece.Empty                                             => "",
             var piece when (piece & Piece.TypeMask) == Piece.Queen  => "q",
             var piece when (piece & Piece.TypeMask) == Piece.Rook   => "r",
             var piece when (piece & Piece.TypeMask) == Piece.Bishop => "b",
