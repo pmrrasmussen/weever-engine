@@ -13,7 +13,7 @@ public class UciEngine(
     private Task _currentSearch = Task.CompletedTask;
     private bool _stopEngine;
     private bool _killSearch;
-    private bool _debugModeActive = false;
+    private bool _debugModeActive;
 
     private CancellationTokenSource _searchTokenSource = new ();
 
@@ -150,9 +150,9 @@ public class UciEngine(
         _killSearch = false;
     }
 
-    private  void Search(string[] arguments, CancellationToken cancellationToken)
+    private  void Search(string[] _, CancellationToken cancellationToken)
     {
-        var (bestMove, _) = searcher.Search(3000, cancellationToken);
+        var (bestMove, _) = searcher.Search(1000, cancellationToken);
 
         if (!_killSearch)
             BestMove(bestMove);

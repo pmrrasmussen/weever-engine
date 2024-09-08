@@ -1,5 +1,3 @@
-using Chess.Structs;
-
 namespace Engine.Test;
 
 public class MateTest
