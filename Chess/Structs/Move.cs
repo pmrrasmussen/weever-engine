@@ -32,6 +32,7 @@ public readonly struct Move(
 
 public static class MoveExtensions
 {
+    private const int WhiteBackRank = 2;
     public static Move ToMove(this string move)
     {
         if (move.Length is < 4 or > 5)
@@ -44,7 +45,7 @@ public static class MoveExtensions
             return new Move(fromSquare, toSquare);
 
         var promotionPiece = move[4].ToPiece();
-        promotionPiece |= (int)toSquare/20 == 2 ? Piece.Black : Piece.White;
+        promotionPiece |= toSquare.GetRank() == WhiteBackRank ? Piece.Black : Piece.White;
 
         return new Move(fromSquare, toSquare, promotionPiece);
     }
