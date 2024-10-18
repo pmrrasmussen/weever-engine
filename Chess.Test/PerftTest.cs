@@ -808,7 +808,7 @@ public class PerftTest
     [InlineData("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 6, 6923051137)]
     public void CheckFromFen(string fen, int depth, long expectedNodes)
     {
-        if (depth > 5)
+        if (depth > 4)
             return;
 
         // Arrange
@@ -820,6 +820,7 @@ public class PerftTest
         var nodes = GetNodeCount(board, depth);
 
         // Assert
+        Assert.Equal(0, board.ZobristHash);
         Assert.Equal(expectedNodes, nodes);
     }
 

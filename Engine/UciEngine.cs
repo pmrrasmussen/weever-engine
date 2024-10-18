@@ -119,7 +119,7 @@ public class UciEngine(
 
         _searchTokenSource = new CancellationTokenSource();
         var cancellationToken = _searchTokenSource.Token;
-        _searchTokenSource.CancelAfter(10000);
+        _searchTokenSource.CancelAfter(1000);
 
         _currentSearch = arguments.Length == 0
             ? Task.Run(() => InfiniteSearch(cancellationToken), cancellationToken)

@@ -9,6 +9,7 @@ public readonly struct BoardMoveDelta(
     int middlegameEvaluation,
     int endgameEvaluation,
     int gamePhase,
+    long boardHash,
     Piece directlyCapturedPiece = Piece.Empty)
 {
     public readonly Move Move = move;
@@ -24,4 +25,18 @@ public readonly struct BoardMoveDelta(
     public readonly int EndgameEvaluation = endgameEvaluation;
 
     public readonly int GamePhase = gamePhase;
+
+    public readonly long BoardHash = boardHash;
+
+    public override bool Equals(object? obj)
+    {
+        return obj is BoardMoveDelta otherMove
+            && Move.Equals(otherMove.Move)
+            && CastlingPrivileges == otherMove.CastlingPrivileges
+            && EnPassantAttackSquare == otherMove.EnPassantAttackSquare
+            && DirectlyCapturedPiece == otherMove.DirectlyCapturedPiece
+            && MiddlegameEvaluation == otherMove.MiddlegameEvaluation
+            && EndgameEvaluation == otherMove.EndgameEvaluation
+            && GamePhase == otherMove.GamePhase;
+    }
 }
